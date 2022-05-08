@@ -68,10 +68,11 @@ namespace HackOfLegend
 
         static void Main(string[] args)
         {
-            client.BaseAddress = new Uri("https://localhost:8080");
+            client.BaseAddress = new Uri("http://127.0.0.1:8080");
             var lcu = new Lcu("C:\\Riot Games\\League of Legends\\lockfile");
             Console.WriteLine(lcu);
             wait_for_champ_select(lcu);
+            logic(lcu);
             string json = lcu.get("/lol-perks/v1/currentpage");
             Rune rune = JsonSerializer.Deserialize<Rune>(json);
             rune.name = "salut c pas moi";
