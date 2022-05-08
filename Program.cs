@@ -49,14 +49,21 @@ namespace HackOfLegend
                 Console.WriteLine("Waiting for a champion...");
                 System.Threading.Thread.Sleep(1000);
                 champ = lcu.get("/lol-champ-select/v1/current-champion");
-
             }
             if(assignedPosition == "")
-                assignedPosition = "MID";
+                assignedPosition = "SUPPORT";
             client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync();
             Console.WriteLine("Champion selected!");
             Console.WriteLine(champ);
-
+            Rune rune = JsonSerializer.Deserialize<Rune>(lcu.get("/lol-perks/v1/currentpage"));
+            rune.name = "PJD " + champ;
+            Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result)[0];
+            rune.primaryStyleId = database_rune.primarystyleid;
+            rune.subStyleId = database_rune.substyleid;
+            rune.selectedPerkIds = new List<int>{database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3};
+            Console.WriteLine(database_rune);   
+            lcu.put("/lol-perks/v1/pages/" + rune.id.ToString(), rune.ToString());    
+            Console.WriteLine(rune);
         }
 
         static void logic(Lcu lcu)
@@ -73,11 +80,6 @@ namespace HackOfLegend
             Console.WriteLine(lcu);
             wait_for_champ_select(lcu);
             logic(lcu);
-            string json = lcu.get("/lol-perks/v1/currentpage");
-            Rune rune = JsonSerializer.Deserialize<Rune>(json);
-            rune.name = "salut c pas moi";
-            lcu.put("/lol-perks/v1/pages/" + rune.id.ToString(), rune.ToString());
-            Console.WriteLine(rune);
             String champ = lcu.get("/lol-champ-select/v1/current-champion");
             champ_select.my_team myTeam = JsonSerializer.Deserialize<champ_select.my_team>(lcu.get("/lol-champ-select/v1/session"));
             Console.WriteLine(myTeam.assignedPosition);

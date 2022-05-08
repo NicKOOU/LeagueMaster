@@ -30,7 +30,7 @@ app.post('/runes', (req, res) => {
                 res.send('Rune already exists');
             } else {
 
-                client.client.query('insert into runes (champion_name,champion_id,lane,A1R1,A1R2,A1R3,A1R4,A2R1,A2R2,A2R3,A3R1,A3R2,A3R3) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)', [rune.champion_name, rune.champion_id, rune.lane, rune.A1R1, rune.A1R2, rune.A1R3, rune.A1R4, rune.A2R1, rune.A2R2, rune.A2R3, rune.A3R1, rune.A3R2, rune.A3R3], (err, pgres) => {
+                client.client.query('insert into runes (champion_name,champion_id,lane,primaryStyleID, primary1, primary2, primary3, primary4, subStyleId, sub1, sub2, shard1,shard2,shard3) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)', [rune.champion_name, rune.champion_id, rune.lane, rune.primaryStyleID, rune.primary1, rune.primary2, rune.primary3, rune.primary4, rune.subStyleId, rune.sub1, rune.sub2, rune.shard1, rune.shard2, rune.shard3], (err, pgres) => {
                     if (err) {
                         console.log(err);
                     } else {
