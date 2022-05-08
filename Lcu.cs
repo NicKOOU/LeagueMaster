@@ -1,0 +1,73 @@
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+
+
+namespace HackOfLegend
+{
+    class Lcu
+    {
+
+        private string pid;
+        private string port;
+        private string password;
+        private string protocol;
+
+        HttpClient client = null;
+
+
+        public Lcu(string lockfile)
+        {
+            String line = "";
+            using (FileStream fs = new FileStream(lockfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                StreamReader logFileReader = new StreamReader(fs);
+                line = logFileReader.ReadLine();
+            }
+
+            string[] data = line.Split(":");
+            pid = data[1];
+            port = data[2];
+            password = data[3];
+            protocol = data[4];
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) =>
+            {
+                return true;
+            };
+
+            client = new HttpClient(httpClientHandler);
+            client.BaseAddress = new Uri("https://127.0.0.1:" + port);
+            client.DefaultRequestHeaders.Add("ContentType", "application/json");
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes("riot:" + password);
+            string val = System.Convert.ToBase64String(plainTextBytes);
+            client.DefaultRequestHeaders.Add("Authorization", "Basic " + val);
+
+
+
+
+        }
+
+        void send_request(string path)
+        {
+            // HttpWebRequest request = (HttpWebRequest)WebRequest.Create(path);
+
+
+            // var plainTextBytes = System.Text.Encoding.UTF8.GetBytes("testing:123456");
+            // string val = System.Convert.ToBase64String(plainTextBytes);
+            // httpClient.DefaultRequestHeaders.Add("Authorization", "Basic " + val);
+        }
+
+        public string get(string path)
+        {
+            var response = client.GetAsync(path).Result;
+            return response.Content.ReadAsStringAsync().Result;
+        }
+
+        public override string ToString()
+        {
+            return "lcu: { pid: " + pid + ", port: " + port + ", password: " + password + ", protocol: " + protocol + " }";
+        }
+    }
+}
