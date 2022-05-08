@@ -38,15 +38,11 @@ namespace HackOfLegend
             };
 
             client = new HttpClient(httpClientHandler);
-            client.BaseAddress = new Uri("https://127.0.0.1:" + port);
+            client.BaseAddress = new Uri(protocol + "://127.0.0.1:" + port);
             client.DefaultRequestHeaders.Add("ContentType", "application/json");
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes("riot:" + password);
             string val = System.Convert.ToBase64String(plainTextBytes);
             client.DefaultRequestHeaders.Add("Authorization", "Basic " + val);
-
-
-
-
         }
 
         void send_request(string path)
@@ -63,6 +59,12 @@ namespace HackOfLegend
         {
             var response = client.GetAsync(path).Result;
             return response.Content.ReadAsStringAsync().Result;
+        }
+
+        public string put(string path, string data)
+        {
+            var resp = client.PutAsync(path, new StringContent(data, System.Text.Encoding.UTF8, "application/json")).Result;
+            return resp.Content.ReadAsStringAsync().Result;
         }
 
         public override string ToString()
