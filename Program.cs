@@ -50,9 +50,10 @@ namespace HackOfLegend
                 System.Threading.Thread.Sleep(1000);
                 champ = lcu.get("/lol-champ-select/v1/current-champion");
             }
+            if(champ[0] == '{')
+                return;         
             if(assignedPosition == "")
                 assignedPosition = "SUPPORT";
-            client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync();
             Console.WriteLine("Champion selected!");
             Console.WriteLine(champ);
             Rune rune = JsonSerializer.Deserialize<Rune>(lcu.get("/lol-perks/v1/currentpage"));
@@ -68,8 +69,11 @@ namespace HackOfLegend
 
         static void logic(Lcu lcu)
         {
-            var champ_select = wait_for_champ_select(lcu);
-            select_champ(lcu, champ_select.myTeam[0].assignedPosition);
+            while(true)
+            {
+                var champ_select = wait_for_champ_select(lcu);
+                select_champ(lcu, champ_select.myTeam[0].assignedPosition);
+            }
         }
 
 
