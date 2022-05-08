@@ -23,5 +23,10 @@ namespace HackOfLegend
         {
             return JsonSerializer.Serialize<Rune>(this);
         }
+
+        public static Rune getCurrentRune(Lcu lcu)
+        {
+            return JsonSerializer.Deserialize<Rune>(lcu.get("/lol-perks/v1/currentpage"));
+        }
     }
 }

@@ -9,6 +9,7 @@ namespace HackOfLegend
 {
     class Program
     {
+        static Stack<Rune> Lastrunes = null;
         private static HttpClient client = new HttpClient();
 
         struct champ_select
@@ -44,40 +45,43 @@ namespace HackOfLegend
         {
 
             String champ = lcu.get("/lol-champ-select/v1/current-champion");
-            while (champ == "0")
+            for (; champ == "0"; champ = lcu.get("/lol-champ-select/v1/current-champion"))
             {
                 Console.WriteLine("Waiting for a champion...");
                 System.Threading.Thread.Sleep(1000);
-                champ = lcu.get("/lol-champ-select/v1/current-champion");
             }
-            if(champ[0] == '{')
-                return;         
-            if(assignedPosition == "")
+            if (champ[0] == '{')
+                return;
+            if (assignedPosition == "")
                 assignedPosition = "SUPPORT";
-            Console.WriteLine("Champion selected!");
-            Console.WriteLine(champ);
-            Rune rune = JsonSerializer.Deserialize<Rune>(lcu.get("/lol-perks/v1/currentpage"));
-            rune.name = "PJD " + champ;
-            Database_Rune database_rune = null;
-            if(client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result == "[]")
-            {
+            Console.WriteLine($"Champion selected! {champ}");
+            Lastrunes = new Stack<Rune>();
+            setRune(lcu, champ, assignedPosition);
+        }
+
+        static void setRune(Lcu lcu, string champ_id, string assignedPosition)
+        {
+            Rune rune = Rune.getCurrentRune(lcu);
+            Lastrunes.Push(rune);
+            rune.name = "PJD " + champ_id;
+            var database_request = client.GetAsync($"/runes/{champ_id}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result;
+            if (database_request == "[]")
                 rune.name = "Never gonna give you up";
-            }
             else
             {
-                database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result)[0];
+                Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(database_request)[0];
                 rune.primaryStyleId = database_rune.primarystyleid;
                 rune.subStyleId = database_rune.substyleid;
-                rune.selectedPerkIds = new List<int>{database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3};
-                Console.WriteLine(database_rune); 
-            }          
-            lcu.put("/lol-perks/v1/pages/" + rune.id.ToString(), rune.ToString());    
+                rune.selectedPerkIds = new List<int> { database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3 };
+                Console.WriteLine(database_rune);
+            }
+            lcu.put("/lol-perks/v1/pages/" + rune.id.ToString(), rune.ToString());
             Console.WriteLine(rune);
         }
 
         static void logic(Lcu lcu)
         {
-            while(true)
+            while (true)
             {
                 var champ_select = wait_for_champ_select(lcu);
                 select_champ(lcu, champ_select.myTeam[0].assignedPosition);
@@ -92,9 +96,6 @@ namespace HackOfLegend
             Console.WriteLine(lcu);
             wait_for_champ_select(lcu);
             logic(lcu);
-            String champ = lcu.get("/lol-champ-select/v1/current-champion");
-            champ_select.my_team myTeam = JsonSerializer.Deserialize<champ_select.my_team>(lcu.get("/lol-champ-select/v1/session"));
-            Console.WriteLine(myTeam.assignedPosition);
         }
     }
 }
