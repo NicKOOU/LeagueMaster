@@ -58,11 +58,19 @@ namespace HackOfLegend
             Console.WriteLine(champ);
             Rune rune = JsonSerializer.Deserialize<Rune>(lcu.get("/lol-perks/v1/currentpage"));
             rune.name = "PJD " + champ;
-            Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result)[0];
-            rune.primaryStyleId = database_rune.primarystyleid;
-            rune.subStyleId = database_rune.substyleid;
-            rune.selectedPerkIds = new List<int>{database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3};
-            Console.WriteLine(database_rune);   
+            Database_Rune database_rune = null;
+            if(client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result == "[]")
+            {
+                rune.name = "Never gonna give you up";
+            }
+            else
+            {
+                database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(client.GetAsync($"/runes/{champ}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result)[0];
+                rune.primaryStyleId = database_rune.primarystyleid;
+                rune.subStyleId = database_rune.substyleid;
+                rune.selectedPerkIds = new List<int>{database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3};
+                Console.WriteLine(database_rune); 
+            }          
             lcu.put("/lol-perks/v1/pages/" + rune.id.ToString(), rune.ToString());    
             Console.WriteLine(rune);
         }
