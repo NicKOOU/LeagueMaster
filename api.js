@@ -31,3 +31,16 @@ app.post('/runes', (req, res) => {
         }
     })
 });
+
+app.get('/runes/:id/:lane', (req, res) => {
+    const rune = req.params.id;
+    const lane = req.params.lane;
+    client.client.query('SELECT * FROM runes WHERE champion_id = $1 AND lane = $2', [rune, lane], (err, pgres) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(pgres.rows);
+            res.send(pgres.rows);
+        }
+    })
+});
