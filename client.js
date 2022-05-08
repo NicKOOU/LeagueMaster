@@ -3,7 +3,7 @@ module.exports = {
     client: new Client({
         host: 'localhost',
         user: 'postgres',
-        password: 'postgres',
+        password: 'nico',
         database: 'runes',
         port: 5432,
     })
