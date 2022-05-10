@@ -7,6 +7,14 @@ app.use(bp.urlencoded({ extended: true }))
 app.listen(8080, () => {
     console.log('Server started on port 8080');
 });
+app.post('/runes/gameid', (req,res)=>{
+    const gameid=req.body;
+    // retrieve data from GET /lol/match/v5/matches/{matchId}
+    
+    
+    
+    console.log(client.clésamère)
+})
 
 app.get('/runes', (req, res) => {
     client.client.query('SELECT * FROM runes', (err, pgres) => {
