@@ -26,7 +26,14 @@ namespace HackOfLegend
         {
             public int? champion_id { get; set; }
         }
-
+        struct eog_stats
+        {
+            public long? gameId { get; set; }
+            public override string ToString()
+            {
+                return JsonSerializer.Serialize(this);
+            }
+        }
 
         static champ_select wait_for_champ_select(Lcu lcu)
         {
@@ -58,6 +65,18 @@ namespace HackOfLegend
             Lastrunes = new Stack<Rune>();
             setRune(lcu, champ, assignedPosition);
         }
+        static void wait_end_game(Lcu lcu)
+        {
+            eog_stats game = JsonSerializer.Deserialize<eog_stats>(lcu.get("lol-end-of-game/v1/eog-stats-block"));
+            while (game.gameId == null)
+            {
+                Console.WriteLine("Waiting for endofgame...");
+                System.Threading.Thread.Sleep(5000);
+                game = JsonSerializer.Deserialize<eog_stats>(lcu.get("lol-end-of-game/v1/eog-stats-block"));
+            }
+            Console.WriteLine(game);
+
+        }
 
         static void setRune(Lcu lcu, string champ_id, string assignedPosition)
         {
@@ -78,13 +97,13 @@ namespace HackOfLegend
             lcu.put("/lol-perks/v1/pages/" + rune.id.ToString(), rune.ToString());
             Console.WriteLine(rune);
         }
-
         static void logic(Lcu lcu)
         {
             while (true)
             {
                 var champ_select = wait_for_champ_select(lcu);
                 select_champ(lcu, champ_select.myTeam[0].assignedPosition);
+                wait_end_game(lcu);
             }
         }
 
