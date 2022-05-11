@@ -1,3 +1,5 @@
+const axios = require('axios').default;
+axios
 const client = require('./client.js');
 const express = require('express');
 const bp = require('body-parser');
@@ -7,15 +9,27 @@ app.use(bp.urlencoded({ extended: true }))
 app.listen(8080, () => {
     console.log('Server started on port 8080');
 });
+
 app.post('/runes/gameid', (req,res)=>{
     const gameid=req.body;
     // retrieve data from GET /lol/match/v5/matches/{matchId}
-    
-    
-    
-    console.log(client.clésamère)
+    getStats(gameid).then(data => console.log(data));
+    console.log(res);
 })
 
+function getStats(gameid) {
+    return axios({
+        proxy: false,
+        method: 'get',
+        url: "https://europe.api.riotgames.com//lol/match/v5/matches/" + gameid,
+        responseType: 'json'
+
+    }).then(response =>
+        response.data
+    ).catch(error => {
+        console.log(error);
+    });
+}
 app.get('/runes', (req, res) => {
     client.client.query('SELECT * FROM runes', (err, pgres) => {
         if (err) {
