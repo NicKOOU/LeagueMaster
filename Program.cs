@@ -99,9 +99,8 @@ namespace HackOfLegend
         }
         static gameflow get_gameflow(Lcu lcu)
         {
-            System.Threading.Thread.Sleep(2000);
             gameflow gameflow = JsonSerializer.Deserialize<gameflow>(lcu.get("/lol-gameflow/v1/gameflow"));
-            while (gameflow.phase == "ChampSelect")
+            while (gameflow.phase == "ChampSelect" || gameflow.phase == null)
             {
                 Console.WriteLine("Waiting for game to start...");
                 System.Threading.Thread.Sleep(1000);
@@ -163,6 +162,8 @@ namespace HackOfLegend
                 Console.WriteLine("Champion selected!");
                 state = State.ChampSelect;
                 gameflow gameflow = get_gameflow(lcu);
+                System.Threading.Thread.Sleep(5000);
+                Console.WriteLine("plouf" + gameflow.phase);
                 Console.WriteLine("Game started!");
                 if (gameflow.phase == "InProgress")
                 {
