@@ -101,7 +101,6 @@ namespace HackOfLegend
         {
             System.Threading.Thread.Sleep(2000);
             gameflow gameflow = JsonSerializer.Deserialize<gameflow>(lcu.get("/lol-gameflow/v1/gameflow"));
-            Console.WriteLine("Gameflow: " + gameflow.phase);
             while (gameflow.phase == "ChampSelect")
             {
                 Console.WriteLine("Waiting for game to start...");
@@ -170,11 +169,6 @@ namespace HackOfLegend
                     state = State.InGame;
                     Check_End_Game(lcu);
                     //Envoyer la GameID à l'API
-                }
-                else
-                {
-                    Console.WriteLine(gameflow.phase);
-                    return;
                 }
             }
         }
