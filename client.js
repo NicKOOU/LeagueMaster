@@ -16,4 +16,3 @@ module.exports.client.query('SELECT * FROM runes', (err, res) => {
         console.log(res.rows);
     }
 })
-

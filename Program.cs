@@ -51,7 +51,7 @@ namespace HackOfLegend
             if (champ[0] == '{')
                 return;
             if (assignedPosition == "")
-                assignedPosition = "SUPPORT";
+                assignedPosition = "ARAM";
             Console.WriteLine($"Champion selected! {champ}");
             Lastrunes = new Stack<Rune>();
             setRune(lcu, champ, assignedPosition);
@@ -67,6 +67,7 @@ namespace HackOfLegend
                 rune.name = "Never gonna give you up";
             else
             {
+                Console.WriteLine(database_request);
                 Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(database_request)[0];
                 rune.primaryStyleId = database_rune.primarystyleid;
                 rune.subStyleId = database_rune.substyleid;
@@ -98,12 +99,33 @@ namespace HackOfLegend
             }
             return val;
         }
+        static List<Database_Rune> steal_rune_from_game(Lcu lcu, long gameid)
+        {
+            Game_stats game_stats = wait_something<Game_stats>(() =>JsonSerializer.Deserialize<Game_stats>(lcu.get($"/lol-match-history/v1/games/{gameid}")), (stat) => stat.gameId != null, 1000);
+            var result = new List<Database_Rune>();
+            Console.WriteLine(game_stats);
+            foreach (var participant in game_stats.participants)
+            {
+                if(participant.stats.kills > participant.stats.deaths) 
+                {
+                    Database_Rune rune = new Database_Rune{ champion_id = participant.championId, lane = participant.timeline.role,primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5};
+                    if(game_stats.gameMode == "ARAM")
+                        rune.lane = "ARAM";
+                    result.Add(rune);
+                }
+            }
+            return result;
+        }
+
+        static void sendrune(Database_Rune rune)
+        {
+            client.PostAsync("/runes",new StringContent(rune.ToString(), System.Text.Encoding.UTF8, "application/json"));
+        }
 
         static Func<Lcu, champ_select> wait_for_champ_select = (Lcu lcu) => wait_something<champ_select>(() => JsonSerializer.Deserialize<champ_select>(lcu.get("/lol-champ-select/v1/session")), (select) => select.gameId != null, 1000);
         static Func<Lcu, gameflow> Check_End_Game = (Lcu lcu) => wait_something<gameflow>(() => JsonSerializer.Deserialize<gameflow>(lcu.get("/lol-gameflow/v1/session")), (gameflow) => gameflow.phase != "InProgress", 5000);
         static Func<Lcu, gameflow> wait_end_game = (Lcu lcu) => wait_something<gameflow>(() => JsonSerializer.Deserialize<gameflow>(lcu.get("/lol-gameflow/v1/session")), (gameflow) => gameflow.phase != "ChampSelect", 1000);
         static Func<Lcu, String> get_champ = (Lcu lcu) => wait_something<String>(() => (lcu.get("/lol-champ-select/v1/current-champion")), (str) => str != "0", 1000);
-
         static void logic(Lcu lcu, State state)
         {
             while (true)
@@ -119,6 +141,8 @@ namespace HackOfLegend
                 {
                     state = State.InGame;
                     Check_End_Game(lcu);
+                    steal_rune_from_game(lcu, gameflow.gameData.gameId).ForEach(sendrune);
+
                     //Envoyer la GameID à l'API
                 }
             }
@@ -127,6 +151,7 @@ namespace HackOfLegend
         {
             State gamestate = State.Idle;
             client.BaseAddress = new Uri("http://127.0.0.1:8080");
+            client.DefaultRequestHeaders.Add("ContentType", "application/json");
             var lcu = new Lcu("C:\\Riot Games\\League of Legends\\lockfile");
             Console.WriteLine(lcu);
             wait_for_champ_select(lcu);

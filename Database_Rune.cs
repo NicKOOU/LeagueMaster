@@ -5,7 +5,6 @@ namespace HackOfLegend
 {
     class Database_Rune
     {
-        public string champion_name { get; set; }
         public int champion_id { get; set; }
         public string lane { get; set; }
         public int primarystyleid {get; set;}
