@@ -50,6 +50,7 @@ namespace HackOfLegend
             String champ = get_champ(lcu);
             if (champ[0] == '{')
                 return;
+            gameflow select_gameflow = get_gameflow(lcu);
             if (assignedPosition == "")
                 assignedPosition = "ARAM";
             Console.WriteLine($"Champion selected! {champ}");
@@ -85,7 +86,7 @@ namespace HackOfLegend
                 Console.WriteLine("Game started!");
                 return gameflow;
             }
-            Console.WriteLine("Dogde Detected");
+            Console.WriteLine("Dodge Detected");
             return gameflow;
         }
 
@@ -103,13 +104,14 @@ namespace HackOfLegend
         {
             Game_stats game_stats = wait_something<Game_stats>(() =>JsonSerializer.Deserialize<Game_stats>(lcu.get($"/lol-match-history/v1/games/{gameid}")), (stat) => stat.gameId != null, 1000);
             var result = new List<Database_Rune>();
-            Console.WriteLine(game_stats);
             foreach (var participant in game_stats.participants)
             {
                 if(participant.stats.kills > participant.stats.deaths) 
                 {
                     Database_Rune rune = new Database_Rune{ champion_id = participant.championId, lane = participant.timeline.role,primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5};
                     if(game_stats.gameMode == "ARAM")
+                        rune.lane = "ARAM";
+                    if(game_stats.gameMode == "URF")
                         rune.lane = "ARAM";
                     result.Add(rune);
                 }
