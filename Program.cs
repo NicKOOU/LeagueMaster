@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Text.Json;
 
@@ -9,6 +9,7 @@ namespace HackOfLegend
 {
     class Program
     {
+        static Random random = new Random();
         static Stack<Rune> Lastrunes = null;
         private static HttpClient client = new HttpClient();
 
@@ -101,16 +102,16 @@ namespace HackOfLegend
         }
         static List<Database_Rune> steal_rune_from_game(Lcu lcu, long gameid)
         {
-            Game_stats game_stats = wait_something<Game_stats>(() =>JsonSerializer.Deserialize<Game_stats>(lcu.get($"/lol-match-history/v1/games/{gameid}")), (stat) => stat.gameId != null, 1000);
+            Game_stats game_stats = wait_something<Game_stats>(() => JsonSerializer.Deserialize<Game_stats>(lcu.get($"/lol-match-history/v1/games/{gameid}")), (stat) => stat.gameId != null, 1000);
             var result = new List<Database_Rune>();
             foreach (var participant in game_stats.participants)
             {
-                if(participant.stats.kills > participant.stats.deaths) 
+                if (participant.stats.kills > participant.stats.deaths)
                 {
-                    Database_Rune rune = new Database_Rune{ champion_id = participant.championId, lane = participant.timeline.role,primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5};
-                    if(game_stats.gameMode == "ARAM")
+                    Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = participant.timeline.role, primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5 };
+                    if (game_stats.gameMode == "ARAM")
                         rune.lane = "ARAM";
-                    if(game_stats.gameMode == "URF")
+                    if (game_stats.gameMode == "URF")
                         rune.lane = "ARAM";
                     result.Add(rune);
                 }
@@ -120,7 +121,15 @@ namespace HackOfLegend
 
         static void sendrune(Database_Rune rune)
         {
-            client.PostAsync("/runes",new StringContent(rune.ToString(), System.Text.Encoding.UTF8, "application/json"));
+            List<int> shard1 = new List<int>() { 5008, 5005, 5007 };
+            List<int> shard2 = new List<int>() { 5008, 5002, 5003 };
+            List<int> shard3 = new List<int>() { 5001, 5002, 5003 };
+            rune.shard1 = shard1[random.Next(shard1.Count)];
+            rune.shard2 = shard2[random.Next(shard2.Count)];
+            rune.shard3 = shard3[random.Next(shard3.Count)];
+
+            // rune.shard1 = 
+            client.PostAsync("/runes", new StringContent(rune.ToString(), System.Text.Encoding.UTF8, "application/json"));
         }
 
         static Func<Lcu, champ_select> wait_for_champ_select = (Lcu lcu) => wait_something<champ_select>(() => JsonSerializer.Deserialize<champ_select>(lcu.get("/lol-champ-select/v1/session")), (select) => select.gameId != null, 1000);
