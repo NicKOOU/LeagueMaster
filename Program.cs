@@ -50,7 +50,6 @@ namespace HackOfLegend
             String champ = get_champ(lcu);
             if (champ[0] == '{')
                 return;
-            gameflow select_gameflow = get_gameflow(lcu);
             if (assignedPosition == "")
                 assignedPosition = "ARAM";
             Console.WriteLine($"Champion selected! {champ}");

@@ -19,7 +19,7 @@ app.get('/runes', (req, res) => {
             return pgres.rows;
         }
     })
-}); 
+});
 
 app.post('/runes', (req, res) => {
     const rune = req.body;
