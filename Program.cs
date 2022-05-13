@@ -46,9 +46,9 @@ namespace HackOfLegend
             public string phase { get; set; }
         }
 
-        static void select_champ(Lcu lcu, string assignedPosition)
+        static void select_champ(Lcu lcu, string assignedPosition, string previous_champ = "0")
         {
-            String champ = get_champ(lcu);
+            String champ = wait_something<String>(() => (lcu.get("/lol-champ-select/v1/current-champion")), (str) => str != previous_champ, 1000);
             if (champ[0] == '{')
                 return;
             if (assignedPosition == "")
@@ -56,6 +56,7 @@ namespace HackOfLegend
             Console.WriteLine($"Champion selected! {champ}");
             Lastrunes = new Stack<Rune>();
             setRune(lcu, champ, assignedPosition);
+            select_champ(lcu, assignedPosition, champ);
         }
 
         static void setRune(Lcu lcu, string champ_id, string assignedPosition)

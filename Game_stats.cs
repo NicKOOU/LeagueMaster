@@ -22,7 +22,7 @@ namespace HackOfLegend
                 public int perkSubStyle { get; set; }
                 public int deaths { get; set; }
                 public int kills { get; set; }
-                public int assits { get; set; }
+                public int assists { get; set; }
             }
             public struct Timeline
             {
