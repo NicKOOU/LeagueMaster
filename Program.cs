@@ -108,7 +108,7 @@ namespace HackOfLegend
             var result = new List<Database_Rune>();
             foreach (var participant in game_stats.participants)
             {
-                if (participant.stats.kills > participant.stats.deaths)
+                if (participant.stats.kills + participant.stats.assists > 2 * participant.stats.deaths)
                 {
                     Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = participant.timeline.role, primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5 };
                     if (game_stats.gameMode == "ARAM")
@@ -123,12 +123,12 @@ namespace HackOfLegend
 
         static void sendrune(Database_Rune rune)
         {
-            List<int> shard1 = new List<int>() { 5008, 5005, 5007 };
-            List<int> shard2 = new List<int>() { 5008, 5002, 5003 };
-            List<int> shard3 = new List<int>() { 5001, 5002, 5003 };
-            rune.shard1 = shard1[random.Next(shard1.Count)];
-            rune.shard2 = shard2[random.Next(shard2.Count)];
-            rune.shard3 = shard3[random.Next(shard3.Count)];
+            // List<int> shard1 = new List<int>() { 5008, 5005, 5007 };
+            // List<int> shard2 = new List<int>() { 5008, 5002, 5003 };
+            // List<int> shard3 = new List<int>() { 5001, 5002, 5003 };
+            // rune.shard1 = shard1[random.Next(shard1.Count)];
+            // rune.shard2 = shard2[random.Next(shard2.Count)];
+            // rune.shard3 = shard3[random.Next(shard3.Count)];
 
             // rune.shard1 = 
             client.PostAsync("/runes", new StringContent(rune.ToString(), System.Text.Encoding.UTF8, "application/json"));
