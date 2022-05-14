@@ -67,6 +67,18 @@ namespace HackOfLegend
             return resp.Content.ReadAsStringAsync().Result;
         }
 
+        public string delete(string path)
+        {
+            var resp = client.DeleteAsync(path).Result;
+            return resp.Content.ReadAsStringAsync().Result;
+        }
+
+        public string post(string path, string data)
+        {
+            var resp = client.PostAsync(path, new StringContent(data, System.Text.Encoding.UTF8, "application/json")).Result;
+            return resp.Content.ReadAsStringAsync().Result;
+        }
+
         public override string ToString()
         {
             return "lcu: { pid: " + pid + ", port: " + port + ", password: " + password + ", protocol: " + protocol + " }";
