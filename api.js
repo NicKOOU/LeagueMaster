@@ -57,9 +57,11 @@ app.get('/runes/:id/:lane', (req, res) => {
         if (err) {
             console.log(err);
         } else {
-            pgres.rows[0]["shard1"] = [5008, 5005, 5007].sample()
-            pgres.rows[0]["shard2"] = [5008, 5002, 5003].sample()
-            pgres.rows[0]["shard3"] = [5001, 5002, 5003].sample()
+            if (pgres.rows.length() > 0) {
+                pgres.rows[0]["shard1"] = [5008, 5005, 5007].sample()
+                pgres.rows[0]["shard2"] = [5008, 5002, 5003].sample()
+                pgres.rows[0]["shard3"] = [5001, 5002, 5003].sample()
+            }
             console.log(pgres.rows);
             res.send(pgres.rows);
         }
