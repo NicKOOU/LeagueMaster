@@ -1,4 +1,4 @@
-
+﻿
 using System;
 using System.Text.Json;
 
@@ -102,6 +102,25 @@ namespace HackOfLegend
             }
             return val;
         }
+        static string assignlane(string lane, string role)
+        {
+            switch (lane)
+            {
+                case "TOP":
+                    return "top";
+                case "JUNGLE":
+                    return "jungle";
+                case "MIDDLE":
+                    return "middle";
+                case "BOTTOM":
+                    if (role == "SUPPORT")
+                        return "utilty";
+                    else
+                        return "bottom";
+                default:
+                    return "";
+            }
+        }
         static List<Database_Rune> steal_rune_from_game(Lcu lcu, long gameid)
         {
             Game_stats game_stats = wait_something<Game_stats>(() => JsonSerializer.Deserialize<Game_stats>(lcu.get($"/lol-match-history/v1/games/{gameid}")), (stat) => stat.gameId != null, 1000);
@@ -110,7 +129,8 @@ namespace HackOfLegend
             {
                 if (participant.stats.kills + participant.stats.assists > 2 * participant.stats.deaths)
                 {
-                    Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = participant.timeline.role, primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5 };
+                    string lane = participant.timeline.lane;
+                    Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = assignlane(participant.timeline.lane, participant.timeline.role), primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5 };
                     if (game_stats.gameMode == "ARAM")
                         rune.lane = "ARAM";
                     if (game_stats.gameMode == "URF")
