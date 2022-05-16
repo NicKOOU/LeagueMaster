@@ -108,7 +108,7 @@ namespace HackOfLegend
             var result = new List<Database_Rune>();
             foreach (var participant in game_stats.participants)
             {
-                if (participant.stats.kills + participant.stats.assists > 2 * participant.stats.deaths)
+                if (participant.stats.kills + participant.stats.assists >= 2 * participant.stats.deaths)
                 {
                     Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = participant.timeline.role, primarystyleid = participant.stats.perkPrimaryStyle, primary1 = participant.stats.perk0, primary2 = participant.stats.perk1, primary3 = participant.stats.perk2, primary4 = participant.stats.perk3, substyleid = participant.stats.perkSubStyle, sub1 = participant.stats.perk4, sub2 = participant.stats.perk5 };
                     if (game_stats.gameMode == "ARAM")
@@ -121,7 +121,7 @@ namespace HackOfLegend
             return result;
         }
 
-        static void sendrune(Database_Rune rune)
+        static void sendrunes(List<Database_Rune> runes)
         {
             // List<int> shard1 = new List<int>() { 5008, 5005, 5007 };
             // List<int> shard2 = new List<int>() { 5008, 5002, 5003 };
@@ -131,7 +131,7 @@ namespace HackOfLegend
             // rune.shard3 = shard3[random.Next(shard3.Count)];
 
             // rune.shard1 = 
-            client.PostAsync("/runes", new StringContent(rune.ToString(), System.Text.Encoding.UTF8, "application/json"));
+            client.PostAsync("/runes", new StringContent(JsonSerializer.Serialize(runes), System.Text.Encoding.UTF8, "application/json"));
         }
 
         static Func<Lcu, champ_select> wait_for_champ_select = (Lcu lcu) => wait_something<champ_select>(() => JsonSerializer.Deserialize<champ_select>(lcu.get("/lol-champ-select/v1/session")), (select) => select.gameId != null, 1000);
@@ -153,7 +153,7 @@ namespace HackOfLegend
                 {
                     state = State.InGame;
                     Check_End_Game(lcu);
-                    steal_rune_from_game(lcu, gameflow.gameData.gameId).ForEach(sendrune);
+                    sendrunes(steal_rune_from_game(lcu, gameflow.gameData.gameId));
 
                     //Envoyer la GameID à l'API
                 }
