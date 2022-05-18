@@ -79,6 +79,7 @@ namespace HackOfLegend
             lcu.delete("/lol-perks/v1/pages");
             lcu.post("/lol-perks/v1/pages/", rune.ToString());
             Console.WriteLine(rune);
+            console.WriteLine("winrate = " + rune.winrate)
         }
         static gameflow get_gameflow(Lcu lcu)
         {
