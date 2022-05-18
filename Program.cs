@@ -136,6 +136,11 @@ namespace HackOfLegend
                         rune.lane = "ARAM";
                     if (game_stats.gameMode == "URF")
                         rune.lane = "ARAM";
+                    if (participant.stats.win == true)
+                        rune.win = 1;
+                    else
+                        rune.win = 0;
+                    Console.WriteLine(rune.champion_id + rune.win);
                     result.Add(rune);
                 }
             }
