@@ -75,11 +75,11 @@ namespace HackOfLegend
                 rune.subStyleId = database_rune.substyleid;
                 rune.selectedPerkIds = new List<int> { database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3 };
                 Console.WriteLine(database_rune);
+                Console.WriteLine("winrate = " + database_rune.winrate);
             }
             lcu.delete("/lol-perks/v1/pages");
             lcu.post("/lol-perks/v1/pages/", rune.ToString());
             Console.WriteLine(rune);
-            console.WriteLine("winrate = " + rune.winrate)
         }
         static gameflow get_gameflow(Lcu lcu)
         {
