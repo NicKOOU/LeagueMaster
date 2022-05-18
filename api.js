@@ -53,7 +53,7 @@ Array.prototype.sample = function () {
 app.get('/runes/:id/:lane', (req, res) => {
     const rune = req.params.id;
     const lane = req.params.lane;
-    client.client.query('SELECT * FROM runes WHERE champion_id = $1 AND lane = $2 ORDER BY count', [rune, lane], (err, pgres) => {
+    client.client.query('SELECT * FROM runes WHERE champion_id = $1 AND lane = $2 ORDER BY count, winrate', [rune, lane], (err, pgres) => {
         if (err) {
             console.log(err);
         } else {
