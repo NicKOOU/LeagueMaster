@@ -1,10 +1,10 @@
 const { Client } = require('pg')
 module.exports = {
-    client: new Client({
-        host: 'localhost',
-        user: 'postgres',
-        password: 'nico',
-        database: 'runes',
+    connection: {
+        host: '',
+        user: '',
+        password: '',
+        database: '',
         port: 5432,
     })
 }
@@ -15,4 +15,5 @@ module.exports.client.query('SELECT * FROM runes', (err, res) => {
     } else {
         console.log("good");
     }
-})
+}
+// module.exports.client.connect();
