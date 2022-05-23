@@ -6,7 +6,7 @@ namespace HackOfLegend
     public struct Game_stats
     {
         public string gameMode { get; set; }
-        public long? gameId {get; set;}
+        public long? gameId { get; set; }
         public struct Participant
         {
             public int championId { get; set; }
@@ -23,6 +23,7 @@ namespace HackOfLegend
                 public int deaths { get; set; }
                 public int kills { get; set; }
                 public int assists { get; set; }
+                public bool win { get; set; }
             }
             public struct Timeline
             {
@@ -30,10 +31,10 @@ namespace HackOfLegend
                 public string role { get; set; }
             }
 
-            public Timeline timeline {get; set;}
-            public Stats stats {get; set;}
-        }                                                           
-         public List<Participant> participants {get; set;}
+            public Timeline timeline { get; set; }
+            public Stats stats { get; set; }
+        }
+        public List<Participant> participants { get; set; }
 
         public override string ToString()
         {
