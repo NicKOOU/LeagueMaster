@@ -146,7 +146,10 @@ namespace HackOfLegend
             }
             return result;
         }
-
+        static void send_gameid(long gameid)
+        {
+            client.PostAsync("/runes/gameid", new StringContent(JsonSerializer.Serialize(gameid), System.Text.Encoding.UTF8, "application/json"));
+        }
         static void sendrunes(List<Database_Rune> runes)
         {
             // List<int> shard1 = new List<int>() { 5008, 5005, 5007 };
