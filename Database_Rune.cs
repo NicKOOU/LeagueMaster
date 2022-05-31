@@ -19,7 +19,7 @@ namespace HackOfLegend
         public int shard2 { get; set; }
         public int shard3 { get; set; }
         public int win { get; set; }
-        public int winrate { get; set; }
+        public float winrate { get; set; }
 
         public override string ToString()
         {

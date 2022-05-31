@@ -42,7 +42,7 @@ class rune {
         else
             await db.query('INSERT into ' + database + ' (champion_id,lane,primaryStyleID, primary1, primary2, primary3, primary4, subStyleId, sub1, sub2) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)', [this.champion_id, this.lane, this.primarystyleid, this.primary1, this.primary2, this.primary3, this.primary4, this.substyleid, this.sub1, this.sub2])
                 .catch(err => console.log(err));
-        if (this.win == 1)
+        if (this.win == true)
             await db.query('UPDATE ' + database + ' SET win = win + 1 WHERE champion_id = $1 AND lane = $2 AND primaryStyleID = $3 AND primary1 = $4 AND primary2 = $5 AND primary3 =$6 AND primary4 =$7 AND subStyleId =$8 AND sub1 =$9 AND sub2 =$10', [this.champion_id, this.lane, this.primarystyleid, this.primary1, this.primary2, this.primary3, this.primary4, this.substyleid, this.sub1, this.sub2])
                 .catch(err => console.log(err));
         let game_count = await db.query('SELECT * FROM ' + database + ' WHERE champion_id = $1 AND lane = $2 AND primaryStyleID = $3 AND primary1 = $4 AND primary2 = $5 AND primary3 =$6 AND primary4 =$7 AND subStyleId =$8 AND sub1 =$9 AND sub2 =$10', [this.champion_id, this.lane, this.primarystyleid, this.primary1, this.primary2, this.primary3, this.primary4, this.substyleid, this.sub1, this.sub2])
@@ -65,10 +65,10 @@ app.get('/runes', (req, res) => {
         })
         .catch(err => console.log(err))
 });
-function assignlane(lane, role, ip) {
+function assignlane(ip) {
     if (ip == 'Invalid')
         return "ARAM";
-    switch (lane) {
+    switch (ip) {
         case "TOP":
             return "top";
         case "JUNGLE":
@@ -76,15 +76,15 @@ function assignlane(lane, role, ip) {
         case "MIDDLE":
             return "middle";
         case "BOTTOM":
-            if (role == "SUPPORT")
-                return "utilty";
-            else
-                return "bottom";
+            return "bottom";
+        case "UTILITY":
+            return "utility";
         default:
             return "";
     }
 }
 app.post('/runes/gameid', async (req, res) => {
+    console.log(req.body);
     const gameid = req.body.gameid;
     const nb = await db.query('SELECT * FROM ' + gameid_db + ' WHERE gameid = $1', [gameid])
         .then(pgres => pgres.length)
@@ -100,9 +100,9 @@ app.post('/runes/gameid', async (req, res) => {
         }
     }).then(response => {
         response.data.info.participants.forEach(participant => {
-            if(2 * participant.kills + participant.assists > 2 * participant.deaths)
+            if(participant.kills + participant.assists > 2 * participant.deaths)
             {
-                let runee = new rune(participant.championId, assignlane(participant.lane, participant.role, participant.individualPosition), participant.perks.styles[0].style, participant.perks.styles[0].selections[0].perk, participant.perks.styles[0].selections[1].perk, participant.perks.styles[0].selections[2].perk, participant.perks.styles[0].selections[3].perk, participant.perks.styles[1].style, participant.perks.styles[1].selections[0].perk, participant.perks.styles[1].selections[1].perk);
+                let runee = new rune(participant.championId, assignlane(participant.individualPosition), participant.perks.styles[0].style, participant.perks.styles[0].selections[0].perk, participant.perks.styles[0].selections[1].perk, participant.perks.styles[0].selections[2].perk, participant.perks.styles[0].selections[3].perk, participant.perks.styles[1].style, participant.perks.styles[1].selections[0].perk, participant.perks.styles[1].selections[1].perk, participant.win);
                 runee.send();
             }
         });
@@ -118,7 +118,7 @@ Array.prototype.sample = function () {
 app.get('/runes/:id/:lane', async (req, res) => {
     const rune = req.params.id;
     const lane = req.params.lane;
-    db.query('SELECT * FROM ' + database + ' WHERE champion_id = $1 AND lane = $2 ORDER BY count', [rune, lane])
+    db.query('SELECT * FROM ' + database + ' WHERE champion_id = $1 AND lane = $2 ORDER BY count DESC, winrate DESC', [rune, lane])
         .then(pgres => {
             if (pgres.length > 0) {
                 pgres[0]["shard1"] = [5008, 5005, 5007].sample()
