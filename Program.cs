@@ -62,7 +62,7 @@ namespace HackOfLegend
             setRune(lcu, champ, assignedPosition);
             select_champ(lcu, champ);
         }
-        
+
         static void setRune(Lcu lcu, string champ_id, string assignedPosition)
         {
             Rune rune = Rune.getCurrentRune(lcu);
@@ -153,19 +153,19 @@ namespace HackOfLegend
         static void send_gameid(long gameid)
         {
             Thread.Sleep(500);
-            client.PostAsync("/runes/gameid", new StringContent("{\"gameid\":"+gameid+"}", System.Text.Encoding.UTF8, "application/json"));
+            client.PostAsync("/runes/gameid", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
             Console.WriteLine("Gameid sent");
         }
 
         static void scriptrune(long gameid)
         {
-            while(true)
+            while (true)
             {
                 Thread.Sleep(500);
                 send_gameid(gameid);
                 gameid++;
             }
-        
+
         }
 
         static Func<Lcu, champ_select> wait_for_champ_select = (Lcu lcu) => wait_something<champ_select>(() => JsonSerializer.Deserialize<champ_select>(lcu.get("/lol-champ-select/v1/session")), (select) => select.gameId != null, 1000);
@@ -188,13 +188,14 @@ namespace HackOfLegend
                 {
                     state = State.InGame;
                     Check_End_Game(lcu);
+                    send_gameid(gameflow.gameData.gameId);
                     //Envoyer la GameID à l'API
                 }
             }
         }
-    
+
         static void Main(string[] args)
-        { 
+        {
             State gamestate = State.Idle;
             client.BaseAddress = new Uri("http://127.0.0.1:8080");
             client.DefaultRequestHeaders.Add("ContentType", "application/json");
