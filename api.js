@@ -113,9 +113,18 @@ async function makerunesfromgame() {
 }
 
 app.post('/runes/gameid', async (req, res) => {
-    db.query('INSERT into games (gameid) values ($1)', [req.body.gameid])
+    db.query('SELECT * FROM games WHERE gameid = $1', [req.body.gameid])
+        .then(pgres => {
+            if (pgres.length == 0) {
+                db.query('INSERT INTO games (gameid) VALUES ($1)', [req.body.gameid])
+                    .catch(err => console.log(err));
+                res.send("Added");
+            }
+            else {
+                res.send("Already in database");
+            }
+        })
         .catch(err => console.log(err));
-    res.send("game sent");
 });
 
 Array.prototype.sample = function () {
