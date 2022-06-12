@@ -13,6 +13,7 @@ namespace HackOfLegend
         static Random random = new Random();
         static Stack<Rune> Lastrunes = null;
         private static HttpClient client = new HttpClient();
+        private static HttpClient client2 = new HttpClient();
 
         struct champ_select
         {
@@ -63,18 +64,35 @@ namespace HackOfLegend
             select_champ(lcu, champ);
         }
 
+        static Database_Rune addshardstojson(string json)
+        {
+            var random = new Random();
+            var list1 = new List<int>(){5008, 5005, 5007};
+            int shard1 = list1[random.Next(list1.Count)];
+            var list2 = new List<int>(){5008, 5002, 5003};
+            int shard2 = list2[random.Next(list2.Count)];
+            var list3 = new List<int>(){5001, 5002, 5003};
+            int shard3 = list3[random.Next(list3.Count)];
+            Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(json)[0];
+            database_rune.shard1 = shard1;
+            database_rune.shard2 = shard2;
+            database_rune.shard3 = shard3;
+            return database_rune;
+        }
+
         static void setRune(Lcu lcu, string champ_id, string assignedPosition)
         {
             Rune rune = Rune.getCurrentRune(lcu);
             Lastrunes.Push(rune);
             rune.name = "PJD " + champ_id;
-            var database_request = client.GetAsync($"/runes/{champ_id}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result;
+            //var database_request = client.GetAsync($"/runes/{champ_id}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result;
+            var database_request = client2.GetAsync("rest/v1/runes?select=*&champion_id=eq."+champ_id+"&lane=eq."+assignedPosition+"&order=count.desc,winrate.desc").Result.Content.ReadAsStringAsync().Result;
             if (database_request == "[]")
                 rune.name = "Never gonna give you up";
             else
             {
                 Console.WriteLine(database_request);
-                Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(database_request)[0];
+                Database_Rune database_rune = addshardstojson(database_request);
                 rune.primaryStyleId = database_rune.primarystyleid;
                 rune.subStyleId = database_rune.substyleid;
                 rune.selectedPerkIds = new List<int> { database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3 };
@@ -153,7 +171,8 @@ namespace HackOfLegend
         static void send_gameid(long gameid)
         {
             Thread.Sleep(500);
-            client.PostAsync("/runes/gameid", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
+            //client.PostAsync("/runes/gameid", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
+            client2.PostAsync("rest/v1/games", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
             Console.WriteLine("Gameid sent");
         }
 
@@ -161,7 +180,6 @@ namespace HackOfLegend
         {
             while (true)
             {
-                Thread.Sleep(500);
                 send_gameid(gameid);
                 gameid++;
             }
@@ -196,14 +214,17 @@ namespace HackOfLegend
 
         static void Main(string[] args)
         {
-            State gamestate = State.Idle;
             client.BaseAddress = new Uri("http://127.0.0.1:8080");
             client.DefaultRequestHeaders.Add("ContentType", "application/json");
+            client2.BaseAddress = new Uri("https://yshzrbmwnmyhhbldbvqg.supabase.co");
+            string apikey = config.apikey;
+            client2.DefaultRequestHeaders.Add("apikey", apikey);
+            client2.DefaultRequestHeaders.Add("Authorization", "Bearer " + apikey);
+            State gamestate = State.Idle;
             var lcu = new Lcu("C:\\Riot Games\\League of Legends\\lockfile");
             Console.WriteLine(lcu);
             wait_for_champ_select(lcu);
             logic(lcu, gamestate);
-            //criptrune(5899278550);
         }
     }
 }
