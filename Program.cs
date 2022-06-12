@@ -14,6 +14,7 @@ namespace HackOfLegend
         static Stack<Rune> Lastrunes = null;
         private static HttpClient client = new HttpClient();
         private static HttpClient client2 = new HttpClient();
+        private static HttpClient client3 = new HttpClient();
 
         struct champ_select
         {
@@ -39,6 +40,7 @@ namespace HackOfLegend
                 return JsonSerializer.Serialize(this);
             }
         }
+
         struct gameflow
         {
             public struct gamedata
@@ -67,11 +69,11 @@ namespace HackOfLegend
         static Database_Rune addshardstojson(string json)
         {
             var random = new Random();
-            var list1 = new List<int>(){5008, 5005, 5007};
+            var list1 = new List<int>() { 5008, 5005, 5007 };
             int shard1 = list1[random.Next(list1.Count)];
-            var list2 = new List<int>(){5008, 5002, 5003};
+            var list2 = new List<int>() { 5008, 5002, 5003 };
             int shard2 = list2[random.Next(list2.Count)];
-            var list3 = new List<int>(){5001, 5002, 5003};
+            var list3 = new List<int>() { 5001, 5002, 5003 };
             int shard3 = list3[random.Next(list3.Count)];
             Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(json)[0];
             database_rune.shard1 = shard1;
@@ -86,7 +88,7 @@ namespace HackOfLegend
             Lastrunes.Push(rune);
             rune.name = "PJD " + champ_id;
             //var database_request = client.GetAsync($"/runes/{champ_id}/{assignedPosition}").Result.Content.ReadAsStringAsync().Result;
-            var database_request = client2.GetAsync("rest/v1/runes?select=*&champion_id=eq."+champ_id+"&lane=eq."+assignedPosition+"&order=count.desc,winrate.desc").Result.Content.ReadAsStringAsync().Result;
+            var database_request = client2.GetAsync("rest/v1/runes?select=*&champion_id=eq." + champ_id + "&lane=eq." + assignedPosition + "&order=count.desc,winrate.desc").Result.Content.ReadAsStringAsync().Result;
             if (database_request == "[]")
                 rune.name = "Never gonna give you up";
             else
@@ -125,8 +127,11 @@ namespace HackOfLegend
             }
             return val;
         }
-        static string assignlane(string lane, string role)
+
+        static string assignlane(string lane, string mode)
         {
+            if (lane == "Invalid")
+                return mode;
             switch (lane)
             {
                 case "TOP":
@@ -136,10 +141,9 @@ namespace HackOfLegend
                 case "MIDDLE":
                     return "middle";
                 case "BOTTOM":
-                    if (role == "SUPPORT")
-                        return "utilty";
-                    else
-                        return "bottom";
+                    return "bottom";
+                case "UTILITY":
+                    return "utility";
                 default:
                     return "";
             }
@@ -168,9 +172,79 @@ namespace HackOfLegend
             }
             return result;
         }
+
+        public struct gameId
+        {
+            public long? gameid { get; set; }
+        }
+
+        static void addorupdaterune(Database_Rune db)
+        {
+            string data = client2.GetAsync("rest/v1/runes?select=*&champion_id=eq." + db.champion_id + "&lane=eq." + db.lane + "&primarystyleid=eq." + db.primarystyleid + "&primary1=eq." + db.primary1 + "&primary2=eq." + db.primary2 + "&primary3=eq." + db.primary3 + "&primary4=eq." + db.primary4 + "&substyleid=eq." + db.substyleid + "&sub1=eq." + db.sub1 + "&sub2=eq." + db.sub2).Result.Content.ReadAsStringAsync().Result;
+            List<Database_Rune> database_runes = JsonSerializer.Deserialize<List<Database_Rune>>(data);
+            if (database_runes.Count == 0)
+            {
+                client2.PostAsync("rest/v1/runes", new StringContent(JsonSerializer.Serialize(db), System.Text.Encoding.UTF8, "application/json"));
+            }
+            else
+            {
+                if (db.win == 1)
+                {
+                    float winrate = (float)(database_runes[0].win + 1) / (float)(database_runes[0].count + 1);
+                    client2.PatchAsync("rest/v1/runes?select=*&champion_id=eq." + db.champion_id + "&lane=eq." + db.lane + "&primarystyleid=eq." + db.primarystyleid + "&primary1=eq." + db.primary1 + "&primary2=eq." + db.primary2 + "&primary3=eq." + db.primary3 + "&primary4=eq." + db.primary4 + "&substyleid=eq." + db.substyleid + "&sub1=eq." + db.sub1 + "&sub2=eq." + db.sub2, new StringContent(JsonSerializer.Serialize(new { winrate = winrate, count = database_runes[0].count + 1, win = database_runes[0].win + 1}), System.Text.Encoding.UTF8, "application/json"));
+                }
+                else
+                {
+                     float winrate = (float)(database_runes[0].win) / (float)(database_runes[0].count + 1);
+                     client2.PatchAsync("rest/v1/runes?select=*&champion_id=eq." + db.champion_id + "&lane=eq." + db.lane + "&primarystyleid=eq." + db.primarystyleid + "&primary1=eq." + db.primary1 + "&primary2=eq." + db.primary2 + "&primary3=eq." + db.primary3 + "&primary4=eq." + db.primary4 + "&substyleid=eq." + db.substyleid + "&sub1=eq." + db.sub1 + "&sub2=eq." + db.sub2, new StringContent(JsonSerializer.Serialize(new { winrate = winrate, count = database_runes[0].count + 1, win = database_runes[0].win}), System.Text.Encoding.UTF8, "application/json"));
+                }
+            }
+        }
+        static void makerunefromgameid()
+        {
+            string gameids = client2.GetAsync("rest/v1/games?select=*").Result.Content.ReadAsStringAsync().Result;
+            List<gameId> gameidlist = JsonSerializer.Deserialize<List<gameId>>(gameids);
+            foreach (gameId game in gameidlist)
+            {
+                List<Database_Rune> runes = new List<Database_Rune>();
+                string matchid = "EUW1_" + 5917428350;
+                string game_stats = client3.GetAsync("lol/match/v5/matches/" + matchid).Result.Content.ReadAsStringAsync().Result;
+                if(game_stats.Contains("Data not found"))
+                {
+                    continue;
+                }
+                riotgames_api_response riotgames_api_response = JsonSerializer.Deserialize<riotgames_api_response>(game_stats);
+                riotgames_api_response.info.participants.ForEach(participant =>
+                {
+                    if (participant.assists + participant.kills >= 2 * participant.deaths)
+                    {
+                        int won = 0;
+                        string lane = assignlane(participant.individualPosition, "ARAM");
+                        if (participant.perks.styles[0].style != 0)
+                        {
+                            won = 1;
+                        }
+                        else
+                        {
+                            won = 0;
+                        }
+
+                        Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = lane, primarystyleid = participant.perks.styles[0].style, primary1 = participant.perks.styles[0].selections[0].perk, primary2 = participant.perks.styles[0].selections[1].perk, primary3 = participant.perks.styles[0].selections[2].perk, primary4 = participant.perks.styles[0].selections[3].perk, substyleid = participant.perks.styles[1].style, sub1 = participant.perks.styles[1].selections[0].perk, sub2 = participant.perks.styles[1].selections[1].perk, win = won };
+                        runes.Add(rune);
+                    }
+                });
+                runes.ForEach(rune =>
+                {
+                    addorupdaterune(rune);
+                });
+                client2.DeleteAsync("rest/v1/games?select=*&gameid=eq." + game.gameid);
+
+
+            }
+        }
+
         static void send_gameid(long gameid)
         {
-            Thread.Sleep(500);
             //client.PostAsync("/runes/gameid", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
             client2.PostAsync("rest/v1/games", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
             Console.WriteLine("Gameid sent");
@@ -207,6 +281,7 @@ namespace HackOfLegend
                     state = State.InGame;
                     Check_End_Game(lcu);
                     send_gameid(gameflow.gameData.gameId);
+                    makerunefromgameid();
                     //Envoyer la GameID à l'API
                 }
             }
@@ -220,6 +295,9 @@ namespace HackOfLegend
             string apikey = config.apikey;
             client2.DefaultRequestHeaders.Add("apikey", apikey);
             client2.DefaultRequestHeaders.Add("Authorization", "Bearer " + apikey);
+            client3.BaseAddress = new Uri("https://europe.api.riotgames.com");
+            client3.DefaultRequestHeaders.Add("X-Riot-Token", config.riotapikey);
+            //makerunefromgameid();
             State gamestate = State.Idle;
             var lcu = new Lcu("C:\\Riot Games\\League of Legends\\lockfile");
             Console.WriteLine(lcu);
