@@ -208,7 +208,7 @@ namespace HackOfLegend
             foreach (gameId game in gameidlist)
             {
                 List<Database_Rune> runes = new List<Database_Rune>();
-                string matchid = "EUW1_" + 5917428350;
+                string matchid = "EUW1_" + game.gameid;
                 string game_stats = client3.GetAsync("lol/match/v5/matches/" + matchid).Result.Content.ReadAsStringAsync().Result;
                 if(game_stats.Contains("Data not found"))
                 {
