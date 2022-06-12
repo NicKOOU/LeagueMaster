@@ -202,6 +202,7 @@ namespace HackOfLegend
         }
         static void makerunefromgameid()
         {
+            Console.WriteLine("Enter gameid");
             string gameids = client2.GetAsync("rest/v1/games?select=*").Result.Content.ReadAsStringAsync().Result;
             List<gameId> gameidlist = JsonSerializer.Deserialize<List<gameId>>(gameids);
             foreach (gameId game in gameidlist)
@@ -281,7 +282,8 @@ namespace HackOfLegend
                     state = State.InGame;
                     Check_End_Game(lcu);
                     send_gameid(gameflow.gameData.gameId);
-                    makerunefromgameid();
+                    Thread t = new Thread(new ThreadStart(makerunefromgameid));
+                    t.Start();
                     //Envoyer la GameID à l'API
                 }
             }
@@ -297,7 +299,6 @@ namespace HackOfLegend
             client2.DefaultRequestHeaders.Add("Authorization", "Bearer " + apikey);
             client3.BaseAddress = new Uri("https://europe.api.riotgames.com");
             client3.DefaultRequestHeaders.Add("X-Riot-Token", config.riotapikey);
-            //makerunefromgameid();
             State gamestate = State.Idle;
             var lcu = new Lcu("C:\\Riot Games\\League of Legends\\lockfile");
             Console.WriteLine(lcu);
