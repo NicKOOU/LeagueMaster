@@ -282,8 +282,8 @@ namespace HackOfLegend
                     state = State.InGame;
                     Check_End_Game(lcu);
                     send_gameid(gameflow.gameData.gameId);
-                    Thread t = new Thread(new ThreadStart(makerunefromgameid));
-                    t.Start();
+                    /*Thread t = new Thread(new ThreadStart(makerunefromgameid));
+                    t.Start();*/
                     //Envoyer la GameID à l'API
                 }
             }
