@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-
+using System.Threading;
 
 namespace HackOfLegend
 {
@@ -20,12 +20,23 @@ namespace HackOfLegend
         public Lcu(string lockfile)
         {
             String line = "";
-            using (FileStream fs = new FileStream(lockfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            while(line == "")
             {
-                StreamReader logFileReader = new StreamReader(fs);
-                line = logFileReader.ReadLine();
+                try
+                {
+                    using (FileStream fs = new FileStream(lockfile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
+                        StreamReader logFileReader = new StreamReader(fs);
+                        line = logFileReader.ReadLine();
+                        Thread.Sleep(5000);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Thread.Sleep(5000);
+                }
             }
-
             string[] data = line.Split(":");
             pid = data[1];
             port = data[2];
@@ -57,8 +68,16 @@ namespace HackOfLegend
 
         public string get(string path)
         {
-            var response = client.GetAsync(path).Result;
-            return response.Content.ReadAsStringAsync().Result;
+            try{
+                var response = client.GetAsync(path).Result;
+                return response.Content.ReadAsStringAsync().Result;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Launcher is close, try open League of Legends and then restart this program");
+            }
+            return "";
         }
 
         public string put(string path, string data)

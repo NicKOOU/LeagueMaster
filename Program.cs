@@ -66,7 +66,7 @@ namespace HackOfLegend
             select_champ(lcu, champ);
         }
 
-        static Database_Rune addshardstojson(string json)
+        static List<int> addshardstojson()
         {
             var random = new Random();
             var list1 = new List<int>() { 5008, 5005, 5007 };
@@ -75,11 +75,7 @@ namespace HackOfLegend
             int shard2 = list2[random.Next(list2.Count)];
             var list3 = new List<int>() { 5001, 5002, 5003 };
             int shard3 = list3[random.Next(list3.Count)];
-            Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(json)[0];
-            database_rune.shard1 = shard1;
-            database_rune.shard2 = shard2;
-            database_rune.shard3 = shard3;
-            return database_rune;
+            return new List<int>() { shard1, shard2, shard3 };
         }
 
         static void setRune(Lcu lcu, string champ_id, string assignedPosition)
@@ -94,10 +90,11 @@ namespace HackOfLegend
             else
             {
                 Console.WriteLine(database_request);
-                Database_Rune database_rune = addshardstojson(database_request);
+                Database_Rune database_rune = JsonSerializer.Deserialize<List<Database_Rune>>(database_request)[0];
+                List<int> shards = addshardstojson();
                 rune.primaryStyleId = database_rune.primarystyleid;
                 rune.subStyleId = database_rune.substyleid;
-                rune.selectedPerkIds = new List<int> { database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, database_rune.shard1, database_rune.shard2, database_rune.shard3 };
+                rune.selectedPerkIds = new List<int> { database_rune.primary1, database_rune.primary2, database_rune.primary3, database_rune.primary4, database_rune.sub1, database_rune.sub2, shards[0], shards[1], shards[2] };
                 Console.WriteLine(database_rune);
                 Console.WriteLine("winrate = " + database_rune.winrate);
             }
@@ -184,18 +181,23 @@ namespace HackOfLegend
             List<Database_Rune> database_runes = JsonSerializer.Deserialize<List<Database_Rune>>(data);
             if (database_runes.Count == 0)
             {
+                db.count = 1;
+                if(db.win == 1)
+                    db.winrate = (float)100;
+                else
+                    db.winrate = (float)0;
                 client2.PostAsync("rest/v1/runes", new StringContent(JsonSerializer.Serialize(db), System.Text.Encoding.UTF8, "application/json"));
             }
             else
             {
-                if (db.win == 1)
+                if (db.win == 0)
                 {
-                    float winrate = (float)(database_runes[0].win + 1) / (float)(database_runes[0].count + 1);
+                    float winrate = (float)((float)(database_runes[0].win + 1) / (float)(database_runes[0].count + 1) * 100.0f);
                     client2.PatchAsync("rest/v1/runes?select=*&champion_id=eq." + db.champion_id + "&lane=eq." + db.lane + "&primarystyleid=eq." + db.primarystyleid + "&primary1=eq." + db.primary1 + "&primary2=eq." + db.primary2 + "&primary3=eq." + db.primary3 + "&primary4=eq." + db.primary4 + "&substyleid=eq." + db.substyleid + "&sub1=eq." + db.sub1 + "&sub2=eq." + db.sub2, new StringContent(JsonSerializer.Serialize(new { winrate = winrate, count = database_runes[0].count + 1, win = database_runes[0].win + 1}), System.Text.Encoding.UTF8, "application/json"));
                 }
                 else
                 {
-                     float winrate = (float)(database_runes[0].win) / (float)(database_runes[0].count + 1);
+                     float winrate = (float)((float)(database_runes[0].win) / (float)(database_runes[0].count + 1) * 100.0f);
                      client2.PatchAsync("rest/v1/runes?select=*&champion_id=eq." + db.champion_id + "&lane=eq." + db.lane + "&primarystyleid=eq." + db.primarystyleid + "&primary1=eq." + db.primary1 + "&primary2=eq." + db.primary2 + "&primary3=eq." + db.primary3 + "&primary4=eq." + db.primary4 + "&substyleid=eq." + db.substyleid + "&sub1=eq." + db.sub1 + "&sub2=eq." + db.sub2, new StringContent(JsonSerializer.Serialize(new { winrate = winrate, count = database_runes[0].count + 1, win = database_runes[0].win}), System.Text.Encoding.UTF8, "application/json"));
                 }
             }
@@ -207,11 +209,18 @@ namespace HackOfLegend
             List<gameId> gameidlist = JsonSerializer.Deserialize<List<gameId>>(gameids);
             foreach (gameId game in gameidlist)
             {
+                Thread.Sleep(1250);
                 List<Database_Rune> runes = new List<Database_Rune>();
                 string matchid = "EUW1_" + game.gameid;
                 string game_stats = client3.GetAsync("lol/match/v5/matches/" + matchid).Result.Content.ReadAsStringAsync().Result;
                 if(game_stats.Contains("Data not found"))
                 {
+                    Console.WriteLine("Data not found for gameid " + game.gameid);
+                    continue;
+                }
+                if(game_stats.Contains("Rate limit exceeded"))
+                {
+                    Console.WriteLine("Rate limit exceeded");
                     continue;
                 }
                 riotgames_api_response riotgames_api_response = JsonSerializer.Deserialize<riotgames_api_response>(game_stats);
@@ -221,7 +230,7 @@ namespace HackOfLegend
                     {
                         int won = 0;
                         string lane = assignlane(participant.individualPosition, "ARAM");
-                        if (participant.perks.styles[0].style != 0)
+                        if (participant.win == true)
                         {
                             won = 1;
                         }
@@ -229,9 +238,12 @@ namespace HackOfLegend
                         {
                             won = 0;
                         }
-
-                        Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = lane, primarystyleid = participant.perks.styles[0].style, primary1 = participant.perks.styles[0].selections[0].perk, primary2 = participant.perks.styles[0].selections[1].perk, primary3 = participant.perks.styles[0].selections[2].perk, primary4 = participant.perks.styles[0].selections[3].perk, substyleid = participant.perks.styles[1].style, sub1 = participant.perks.styles[1].selections[0].perk, sub2 = participant.perks.styles[1].selections[1].perk, win = won };
-                        runes.Add(rune);
+                        if(participant.perks.styles[0].style != 0 && participant.perks.styles[0].selections[0].perk != 0 && participant.perks.styles[0].selections[1].perk != 0 && participant.perks.styles[0].selections[2].perk != 0 && participant.perks.styles[1].style != 0 && participant.perks.styles[1].selections[0].perk != 0 && participant.perks.styles[1].selections[1].perk != 0)
+                        {
+                            Database_Rune rune = new Database_Rune { champion_id = participant.championId, lane = lane, primarystyleid = participant.perks.styles[0].style, primary1 = participant.perks.styles[0].selections[0].perk, primary2 = participant.perks.styles[0].selections[1].perk, primary3 = participant.perks.styles[0].selections[2].perk, primary4 = participant.perks.styles[0].selections[3].perk, substyleid = participant.perks.styles[1].style, sub1 = participant.perks.styles[1].selections[0].perk, sub2 = participant.perks.styles[1].selections[1].perk, win = won };
+                            runes.Add(rune);
+                            
+                        }
                     }
                 });
                 runes.ForEach(rune =>
@@ -243,18 +255,28 @@ namespace HackOfLegend
 
             }
         }
+        static void deleteall()
+        {
+            client2.DeleteAsync("rest/v1/runes?select=*");
+        }
 
         static void send_gameid(long gameid)
         {
             //client.PostAsync("/runes/gameid", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
-            client2.PostAsync("rest/v1/games", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
-            Console.WriteLine("Gameid sent");
+            string data = client2.GetAsync("rest/v1/games?select=*&gameid=eq." + gameid).Result.Content.ReadAsStringAsync().Result;
+            List<gameId> gameidlist = JsonSerializer.Deserialize<List<gameId>>(data);
+            if (gameidlist.Count == 0)
+            {
+                client2.PostAsync("rest/v1/games", new StringContent("{\"gameid\":" + gameid + "}", System.Text.Encoding.UTF8, "application/json"));
+                Console.WriteLine("Gameid sent");
+            }
         }
 
         static void scriptrune(long gameid)
         {
             while (true)
             {
+                Thread.Sleep(200);
                 send_gameid(gameid);
                 gameid++;
             }
