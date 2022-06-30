@@ -1,24 +1,14 @@
 const client = require('./client.js');
-const express = require('express');
-const bp = require('body-parser');
-const util = require("util");
 const { default: axios } = require('axios');
-const { send, json } = require('express/lib/response');
 const { createClient } = require('@supabase/supabase-js');
-const { Console } = require('console');
 var fs = require('fs');
-var https = require('https');
 const authenticate = require('league-connect');
-const res = require('express/lib/response');
 const { deepEqual } = require('assert');
 axios.baseURL = "https://yshzrbmwnmyhhbldbvqg.supabase.co";
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.apikey;
 
 const pgp = require('pg-promise')();
 const db = pgp(client.connection);
-
-const database = 'runes'; // enter the name of your primary database
-const gameid_db = 'games'; // enter the name of your secondary database (gameids)
 
 class rune {
     constructor(champion_id, lane, primarystyleid, primary1, primary2, primary3, primary4, substyleid, sub1, sub2, win) {
