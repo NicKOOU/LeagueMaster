@@ -1,9 +1,9 @@
 module.exports = {
     connection: {
-        host: '',
-        user: '',
-        password: '',
-        database: '',
-        port: 5432,
+        host: ,
+        user: ,
+        password: ,
+        database: ,
+        port: ,
     },
 }

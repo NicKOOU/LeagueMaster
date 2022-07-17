@@ -4,6 +4,7 @@ const { createClient } = require('@supabase/supabase-js');
 var fs = require('fs');
 const authenticate = require('league-connect');
 const { deepEqual } = require('assert');
+const { count } = require('console');
 axios.baseURL = "https://yshzrbmwnmyhhbldbvqg.supabase.co";
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.apikey;
 
@@ -77,27 +78,38 @@ async function champandrune(data, lcu)
         method: 'GET',
         url: '/lol-champ-select/v1/session'
     }, lcu.credentials)
+    console.log(resp.data);
     let assignedPosition = "ARAM";
     resp.raw.myTeam.forEach(champ => {
         if (champ.championId == data)
             assignedPosition = champ.position;
     });
-    if (assignedPosition == "" || assignedPosition == "undefined")
+    if (assignedPosition == "" || assignedPosition == undefined)
         assignedPosition = "ARAM";
     let rune = await authenticate.createHttp1Request({
         method: 'GET',
         url: '/lol-perks/v1/currentpage'
     }, lcu.credentials)
     rune.name = "PJD " + data;
-    let database_rune = await dataBase.client.from('runes').select('*').eq('champion_id', data, 'lane', assignedPosition);
+    let database_rune = await dataBase.client.from('runes').select('*').eq('champion_id', data).eq('lane', assignedPosition).order('count', 'desc');
+    let stats = [];
+    for(let i = 0; i < database_rune.data.length; i++)
+    {
+        if(database_rune.data[i].count < 10)
+            stats.push(0);
+        else
+            stats.push(database_rune.data[i].count + database_rune.data[i].winrate);
+    }
+    let max = Math.max(...stats);
+    let max_index = stats.indexOf(max);
     if (database_rune.data.length == 0)
         rune.name = "Not Found";
     else
     {
         let shards = addshards();
-        rune.raw.primaryStyleId = database_rune.data[0].primarystyleid;
-        rune.raw.subStyleId = database_rune.data[0].substyleid;
-        rune.raw.selectedPerkIds = [database_rune.data[0].primary1, database_rune.data[0].primary2, database_rune.data[0].primary3, database_rune.data[0].primary4, database_rune.data[0].sub1, database_rune.data[0].sub2, shards[0], shards[1], shards[2]];
+        rune.raw.primaryStyleId = database_rune.data[max_index].primarystyleid;
+        rune.raw.subStyleId = database_rune.data[max_index].substyleid;
+        rune.raw.selectedPerkIds = [database_rune.data[max_index].primary1, database_rune.data[max_index].primary2, database_rune.data[max_index].primary3, database_rune.data[max_index].primary4, database_rune.data[max_index].sub1, database_rune.data[max_index].sub2, shards[0], shards[1], shards[2]];
     }
     let newrune = {};
     newrune.name = rune.name;
