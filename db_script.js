@@ -99,7 +99,7 @@ async function makerunesfromgame() {
         const matchid = "EUW1_" + gameids[i].gameid;
         axios.get(`https://europe.api.riotgames.com/lol/match/v5/matches/${matchid}`, {
             headers: {
-                'X-Riot-Token': 'RGAPI-18e33b7d-f1a4-4a1c-bfa8-ff957f29778e' // Insert your API key here
+                'X-Riot-Token': '' // Insert your API key here
             }
         }).then(response => {
             response.data.info.participants.forEach(participant => {
