@@ -1,16 +1,17 @@
-const client = require('./client.js');
-const express = require('express');
-const bp = require('body-parser');
-const util = require("util");
-const { default: axios } = require('axios');
-const { send } = require('express/lib/response');
 var fs = require('fs');
-const pgp = require('pg-promise')();
-const db = pgp(client.connection);
+const { createClient } = require('@supabase/supabase-js');
+
+class DB {
+    constructor()
+    {
+        this.apikey = fs.readFileSync('apikey.txt', 'utf8');
+        this.client = createClient('https://yshzrbmwnmyhhbldbvqg.supabase.co', this.apikey);
+    }
+}
 async function deleteallgames()
 {
-    let query = `DELETE FROM games`;
-    await db.query(query);
+    let db = new DB();
+    await db.client.from('games').delete(); 
 }
 async function pushgameids(limit)
 {
@@ -18,8 +19,8 @@ async function pushgameids(limit)
     for (let i = 0; i < limit; i++)
     {   
         gameid++;
-        let query = `INSERT INTO games (gameid) VALUES (${gameid})`;
-        await db.query(query);
+        let db = new DB();
+        await db.client.from('games').insert([{gameid: gameid}]);
     }
     fs.writeFileSync('lastgameid.txt', gameid.toString());
 }

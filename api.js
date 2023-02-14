@@ -5,8 +5,6 @@ const authenticate = require('league-connect');
 axios.baseURL = "https://yshzrbmwnmyhhbldbvqg.supabase.co";
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.apikey;
 
-const pgp = require('pg-promise')();
-
 class DB {
     constructor()
     {
