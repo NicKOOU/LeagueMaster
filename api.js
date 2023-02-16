@@ -35,14 +35,11 @@ async function showAllRunesInConsoleToChoose(champion_id, assignedPosition, rune
         .eq('champion_id', champion_id)
         .eq('lane', assignedPosition)
         .order('count', 'desc');
-
     for (let i = 0; i < database_rune.data.length; i++) {
         console.log(
             i +
             ' : ' +
             runesjson.primary[database_rune.data[i].primarystyleid] +
-            ' | ' +
-            runesjson.primary[database_rune.data[i].substyleid] +
             ' | ' +
             runesjson.secondary[database_rune.data[i].primary1] +
             ' | ' +
@@ -50,7 +47,13 @@ async function showAllRunesInConsoleToChoose(champion_id, assignedPosition, rune
             ' | ' +
             runesjson.secondary[database_rune.data[i].primary3] +
             ' | ' +
-            runesjson.secondary[database_rune.data[i].primary4]
+            runesjson.secondary[database_rune.data[i].primary4] +
+            ' | ' +
+            runesjson.primary[database_rune.data[i].substyleid] +
+            ' | ' +
+            runesjson.secondary[database_rune.data[i].sub1] +
+            ' | ' +
+            runesjson.secondary[database_rune.data[i].sub2]
         );
     }
     let runeIndexPromise = new Promise((resolve, reject) => {
@@ -67,9 +70,9 @@ async function showAllRunesInConsoleToChoose(champion_id, assignedPosition, rune
                 runeIndex = parseInt(answer);
                 runes = await parseDataBaseRune(database_rune, champion_id, runeIndex, rune);
                 let newrune = new Rune(runes.primaryStyleId, runes.subStyleId, runes.selectedPerkIds, runes.name);
+                newrune.name = runes.name + ' Mod'
                 send_rune_to_lc(newrune);
             } else {
-                console.log('No response');
                 return;
             }
         })
@@ -198,7 +201,6 @@ class LCU {
         ws.subscribe('/lol-gameflow/v1/session', (data) => {
             if (data.phase != this.session) {
                 this.session = data.phase;
-                console.log(data.phase);
             }
             if (data.phase == "InProgress") {
                 if (this.gameId != data.gameData.gameId) {
