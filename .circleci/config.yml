@@ -17,16 +17,16 @@ jobs:
       - run:
           name: Lint code with ESLint
           command: npx eslint .
-    filters:
-            branches:
-              only: BetterInJs
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
   leagueMasterCI:
     jobs:
-      - run-eslint
+      - run-eslint:
+          filters:
+            branches:
+              only: BetterInJs
       - node/test:
           version: '16.10'
           pkg-manager: npm
