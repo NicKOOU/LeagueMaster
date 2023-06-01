@@ -8,17 +8,22 @@ jobs:
     executor: node/default
     steps:
       - checkout
-      - node/install-packages
+      - run:
+          name: Clear npm cache
+          command: npm cache clean --force
+      - node/install-packages:
+          pkg-manager: npm
+          node-version: '16.10'
       - run:
           name: Run ESLint
-          command: yarn run eslint
+          command: npm run eslint
 
 workflows:
   leagueMasterCI:
     jobs:
       - node/test:
           version: '16.10'
-          pkg-manager: yarn
+          pkg-manager: npm
           filters:
             branches:
               only: BetterInJs
