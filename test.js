@@ -1,1 +1,6 @@
-assert(1 + 1 == 2, "1 + 1 == 2");
+const assert = require("assert");
+
+const expected = 5;
+const actual = 2 + 3;
+
+assert.strictEqual(actual, expected);
