@@ -6,27 +6,30 @@ version: 2.1
 orbs:
   node: circleci/node@4.7
 
+jobs:
+  run-eslint:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          cache-key: node-packages-{{ checksum "package-lock.json" }}
+      - run:
+          name: Lint code with ESLint
+          command: npx eslint .
+    filters:
+            branches:
+              only: BetterInJs
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
   leagueMasterCI:
     jobs:
+      - run-eslint
       - node/test:
           version: '16.10'
           pkg-manager: npm
-          filters:
-            branches:
-              only: BetterInJs
-      - run-eslint:
-          executor: node/default
-          steps:
-            - checkout
-            - node/install-packages:
-                pkg-manager: npm
-                cache-key: node-packages-{{ checksum "package-lock.json" }}
-            - run:
-                name: Lint code with ESLint
-                command: npx eslint .
           filters:
             branches:
               only: BetterInJs
