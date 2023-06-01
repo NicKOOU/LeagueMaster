@@ -12,6 +12,19 @@ workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
+      - run-eslint:
+          executor: node/default
+          steps:
+            - checkout
+            - node/install-packages:
+                pkg-manager: npm
+                cache-key: node-packages-{{ checksum "package-lock.json" }}
+            - run:
+                name: Lint code with ESLint
+                command: npx eslint .
+          filters:
+            branches:
+              only: BetterInJs
       - node/test:
           # This is the node version to use for the `cimg/node` tag
           # Relevant tags can be found on the CircleCI Developer Hub
@@ -22,3 +35,4 @@ workflows:
           filters:
             branches:
               only: BetterInJs
+
