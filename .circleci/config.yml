@@ -1,14 +1,14 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@4.7
+  node: circleci/node
 
 jobs:
   eslint:
     executor: node/default
     steps:
       - checkout
-      - install-packages:
+      - node/install-packages:
           pkg-manager: yarn
       - run:
           name: Run ESLint
