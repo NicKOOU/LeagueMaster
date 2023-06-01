@@ -21,4 +21,4 @@ workflows:
           pkg-manager: npm
           filters:
             branches:
-              ignore: master
+              ignore: main
