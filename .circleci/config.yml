@@ -6,7 +6,6 @@ orbs:
 jobs:
   eslint:
     executor: node/default
-    pkg-manager: npm
     steps:
       - checkout
       - node/install-packages
