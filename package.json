@@ -17,6 +17,6 @@
   },
   "scripts": {
     "test": "node test.js",
-    "lint": ".node_modules/.bin/eslint ."
+    "lint": ".node_modules/eslint/bin/eslint.js . --ext .js"
   }
 }

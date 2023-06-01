@@ -11,15 +11,8 @@ orbs:
 workflows:
   leagueMasterCI:
     jobs:
-      - run-eslint:
-          steps:
-            - checkout
-            - node/install-packages:
-                pkg-manager: npm
-                cache-key: node-packages-{{ checksum "package-lock.json" }}
-            - run:
-                name: Lint code with ESLint
-                command: npx eslint .
+      - node/lint:
+          pkg-manager: npm
           filters:
             branches:
               only: BetterInJs
