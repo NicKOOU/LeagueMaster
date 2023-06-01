@@ -11,18 +11,17 @@ jobs:
       - node/install-packages
       - run:
           name: Run ESLint
-          command: npm run eslint
+          command: yarn run eslint
 
 workflows:
   leagueMasterCI:
     jobs:
       - node/test:
           version: '16.10'
-          pkg-manager: npm
+          pkg-manager: yarn
           filters:
             branches:
               only: BetterInJs
       - eslint:
-          pkg-manager: npm
           requires:
             - node/test
