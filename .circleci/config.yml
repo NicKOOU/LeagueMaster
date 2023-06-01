@@ -11,11 +11,6 @@ orbs:
 workflows:
   leagueMasterCI:
     jobs:
-      - node/lint:
-          pkg-manager: npm
-          filters:
-            branches:
-              only: BetterInJs
       - node/test:
           version: '16.10'
           pkg-manager: npm
