@@ -11,6 +11,12 @@ orbs:
 workflows:
   leagueMasterCI:
     jobs:
+      - node/test:
+          version: '16.10'
+          pkg-manager: npm
+          filters:
+            branches:
+              only: BetterInJs
       - run-eslint:
           executor: node/default
           steps:
@@ -24,21 +30,3 @@ workflows:
           filters:
             branches:
               only: BetterInJs
-      - node/test:
-          version: '16.10'
-          pkg-manager: npm
-          filters:
-            branches:
-              only: BetterInJs
-              
-jobs:
-  run-eslint:
-    executor: node/default
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-          cache-key: node-packages-{{ checksum "package-lock.json" }}
-      - run:
-          name: Lint code with ESLint
-          command: npx eslint .
