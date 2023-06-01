@@ -23,3 +23,9 @@ workflows:
           filters:
             branches:
               only: BetterInJs
+      - node/test:
+          version: '16.10'
+          pkg-manager: npm
+          filters:
+            branches:
+              only: BetterInJs
