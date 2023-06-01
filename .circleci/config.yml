@@ -13,7 +13,6 @@ jobs:
           command: npm cache clean --force
       - node/install-packages:
           pkg-manager: npm
-          node-version: '16.10'
       - run:
           name: Run ESLint
           command: npm run eslint
