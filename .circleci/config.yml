@@ -24,5 +24,6 @@ workflows:
             branches:
               only: BetterInJs
       - eslint:
+          pkg-manager: npm
           requires:
             - node/test
