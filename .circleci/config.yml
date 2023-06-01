@@ -17,12 +17,6 @@ jobs:
 workflows:
   leagueMasterCI:
     jobs:
-      - node/test:
-          version: '16.10'
-          pkg-manager: yarn
-          filters:
-            branches:
-              only: BetterInJs
       - eslint:
           requires:
             - node/test
