@@ -9,8 +9,7 @@ orbs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  leagueMasterCI:
     jobs:
       - run-eslint:
           executor: node/default
@@ -26,13 +25,20 @@ workflows:
             branches:
               only: BetterInJs
       - node/test:
-          # This is the node version to use for the `cimg/node` tag
-          # Relevant tags can be found on the CircleCI Developer Hub
-          # https://circleci.com/developer/images/image/cimg/node
           version: '16.10'
-          # If you are using yarn, change the line below from "npm" to "yarn"
           pkg-manager: npm
           filters:
             branches:
               only: BetterInJs
-
+              
+jobs:
+  run-eslint:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          cache-key: node-packages-{{ checksum "package-lock.json" }}
+      - run:
+          name: Lint code with ESLint
+          command: npx eslint .
