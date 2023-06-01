@@ -9,7 +9,7 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-          pkg-manager: yarn
+          pkg-manager: yarn 
       - run:
           name: Run ESLint
           command: yarn run eslint
@@ -17,4 +17,12 @@ jobs:
 workflows:
   leagueMasterCI:
     jobs:
-      - eslint
+      - node/test:
+          version: '16.10'
+          pkg-manager: yarn
+          filters:
+            branches:
+              only: BetterInJs
+      - eslint:
+          requires:
+            - node/test
