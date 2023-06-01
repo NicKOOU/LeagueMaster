@@ -18,5 +18,3 @@ workflows:
   leagueMasterCI:
     jobs:
       - eslint:
-          requires:
-            - node/test
