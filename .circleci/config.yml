@@ -17,4 +17,4 @@ jobs:
 workflows:
   leagueMasterCI:
     jobs:
-      - eslint:
+      - eslint
