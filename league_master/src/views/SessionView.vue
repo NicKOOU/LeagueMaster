@@ -1,16 +1,27 @@
 <template>
-  <div>
+  <div class="session">
     <h1>Waiting for champ select to begin</h1>
     <div v-if="session === 'ChampSelect'">
       <h2>Champion Select</h2>
-      <p>Waiting for Champion...</p>
+      <p>Waiting for Champion...</p>  
     </div>
     <div v-else>
       <h2>No Game Found</h2>
     </div>
-
   </div>
 </template>
+
+<style>
+.session {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: white;
+}
+</style>
+
 
 <script>
 export default {

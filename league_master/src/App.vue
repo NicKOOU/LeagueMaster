@@ -1,17 +1,50 @@
 <template>
-  <div>
-    <div v-if="isLoading">
-      <p>Loading...</p>
-    </div>
-    <div v-else>
+  <div class="app">
+    <HeaderSection />
+    <div>
       <router-view></router-view>
     </div>
+    <FooterSection />
   </div>
 </template>
 
+<style>
+/* CSS Reset */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  background-color: #141336;
+  position: relative; /* Add position relative to the app container */
+  min-height: 100vh; /* Set a minimum height to fill the viewport */
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Ensure the overlay is above other elements */
+}
+
+</style>
+
 <script>
+import FooterSection from "@/components/Footer.vue";
+import HeaderSection from "@/components/Header.vue";
+
 export default {
   name: 'App',
+  components: {
+    FooterSection,
+    HeaderSection
+  },
   data() {
     return {
       isLoading: true,
