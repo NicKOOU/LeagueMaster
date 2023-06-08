@@ -1,21 +1,22 @@
-const { default: axios } = require("axios");
-const { createClient } = require("@supabase/supabase-js");
-const fs = require("fs");
-const authenticate = require("league-connect");
-const runesjson = require("./runes.json");
-const readline = require("readline");
+/* eslint-disable require-jsdoc */
+const {default: axios} = require('axios');
+const {createClient} = require('@supabase/supabase-js');
+const fs = require('fs');
+const authenticate = require('league-connect');
+const runesjson = require('./runes.json');
+const readline = require('readline');
 
 let rl = null;
 
-axios.baseURL = "https://yshzrbmwnmyhhbldbvqg.supabase.co";
-axios.defaults.headers.common.Authorization = "Bearer " + this.apikey;
+axios.baseURL = 'https://yshzrbmwnmyhhbldbvqg.supabase.co';
+axios.defaults.headers.common.Authorization = 'Bearer ' + this.apikey;
 
 class DB {
   constructor() {
-    this.apikey = fs.readFileSync("apikey.txt", "utf8");
+    this.apikey = fs.readFileSync('apikey.txt', 'utf8');
     this.client = createClient(
-      "https://yshzrbmwnmyhhbldbvqg.supabase.co",
-      this.apikey
+        'https://yshzrbmwnmyhhbldbvqg.supabase.co',
+        this.apikey,
     );
   }
 }
@@ -30,48 +31,40 @@ class Rune {
   }
 }
 
-class test {
-  constructor(Keyone, yonamE) {
-    this.name = name;
-    this.Keyone = Keyone;
-    this.yonamE = yonamE;
-  }
-}
-
 async function showAllRunesInConsoleToChoose(
-  championId,
-  assignedPosition,
-  rune
+    championId,
+    assignedPosition,
+    rune,
 ) {
   const databaseRune = await dataBase.client
-    .from("runes")
-    .select("*")
-    .eq("champion_id", championId)
-    .eq("lane", assignedPosition)
-    .order("count", "desc");
+      .from('runes')
+      .select('*')
+      .eq('champion_id', championId)
+      .eq('lane', assignedPosition)
+      .order('count', 'desc');
   for (let i = 0; i < databaseRune.data.length; i++) {
     console.log(
-      i +
-        " : " +
+        i +
+        ' : ' +
         runesjson.primary[databaseRune.data[i].primarystyleid] +
-        " | " +
+        ' | ' +
         runesjson.secondary[databaseRune.data[i].primary1] +
-        " | " +
+        ' | ' +
         runesjson.secondary[databaseRune.data[i].primary2] +
-        " | " +
+        ' | ' +
         runesjson.secondary[databaseRune.data[i].primary3] +
-        " | " +
+        ' | ' +
         runesjson.secondary[databaseRune.data[i].primary4] +
-        " | " +
+        ' | ' +
         runesjson.primary[databaseRune.data[i].substyleid] +
-        " | " +
+        ' | ' +
         runesjson.secondary[databaseRune.data[i].sub1] +
-        " | " +
-        runesjson.secondary[databaseRune.data[i].sub2]
+        ' | ' +
+        runesjson.secondary[databaseRune.data[i].sub2],
     );
   }
   const runeIndexPromise = new Promise((resolve, reject) => {
-    rl.question("Which rune do you want to use? ", (answer) => {
+    rl.question('Which rune do you want to use? ', (answer) => {
       resolve(answer);
     });
   });
@@ -79,28 +72,28 @@ async function showAllRunesInConsoleToChoose(
   let runeIndex;
 
   await Promise.race([runeIndexPromise, timeout])
-    .then(async (answer) => {
-      if (typeof answer === "string") {
-        runeIndex = parseInt(answer);
-        const runes = await parseDataBaseRune(
-          databaseRune,
-          championId,
-          runeIndex,
-          rune
-        );
-        const newrune = new Rune(
-          runes.primaryStyleId,
-          runes.subStyleId,
-          runes.selectedPerkIds,
-          runes.name
-        );
-        newrune.name = runes.name + " Mod";
-        sendRuneToLc(newrune);
-      }
-    })
-    .catch((error) => {
-      console.log("Error:", error);
-    });
+      .then(async (answer) => {
+        if (typeof answer === 'string') {
+          runeIndex = parseInt(answer);
+          const runes = await parseDataBaseRune(
+              databaseRune,
+              championId,
+              runeIndex,
+              rune,
+          );
+          const newrune = new Rune(
+              runes.primaryStyleId,
+              runes.subStyleId,
+              runes.selectedPerkIds,
+              runes.name,
+          );
+          newrune.name = runes.name + ' Mod';
+          sendRuneToLc(newrune);
+        }
+      })
+      .catch((error) => {
+        console.log('Error:', error);
+      });
 }
 
 function addshards() {
@@ -116,7 +109,7 @@ function addshards() {
 
 async function parseDataBaseRune(databaseRune, name, index, runes) {
   const shards = addshards();
-  runes.name = "PJD " + name;
+  runes.name = 'PJD ' + name;
   runes.primaryStyleId = databaseRune.data[index].primarystyleid;
   runes.subStyleId = databaseRune.data[index].substyleid;
   runes.selectedPerkIds = [
@@ -135,36 +128,36 @@ async function parseDataBaseRune(databaseRune, name, index, runes) {
 
 async function champandrune(data, lcu) {
   const response = await authenticate.createHttp1Request(
-    {
-      method: "GET",
-      url: "/lol-champ-select/v1/session",
-    },
-    lcu.credentials
+      {
+        method: 'GET',
+        url: '/lol-champ-select/v1/session',
+      },
+      lcu.credentials,
   );
   const text = response._raw.toString();
   const resp = JSON.parse(text);
-  let assignedPosition = "ARAM";
+  let assignedPosition = 'ARAM';
   resp.myTeam.forEach((champ) => {
     if (champ.championId === data) {
       assignedPosition = champ.position;
     }
   });
-  if (assignedPosition === "" || assignedPosition === undefined) {
-    assignedPosition = "ARAM";
+  if (assignedPosition === '' || assignedPosition === undefined) {
+    assignedPosition = 'ARAM';
   }
   let rune = await authenticate.createHttp1Request(
-    {
-      method: "GET",
-      url: "/lol-perks/v1/currentpage",
-    },
-    lcu.credentials
+      {
+        method: 'GET',
+        url: '/lol-perks/v1/currentpage',
+      },
+      lcu.credentials,
   );
   const databaseRune = await dataBase.client
-    .from("runes")
-    .select("*")
-    .eq("champion_id", data)
-    .eq("lane", assignedPosition)
-    .order("count", "desc");
+      .from('runes')
+      .select('*')
+      .eq('champion_id', data)
+      .eq('lane', assignedPosition)
+      .order('count', 'desc');
   const stats = [];
   for (let i = 0; i < databaseRune.data.length; i++) {
     if (databaseRune.data[i].count < 10) {
@@ -176,17 +169,17 @@ async function champandrune(data, lcu) {
   const max = Math.max(...stats);
   const index = stats.indexOf(max);
   if (databaseRune.data.length === 0) {
-    rune.name = "Not Found";
+    rune.name = 'Not Found';
   } else {
     const text = rune._raw.toString();
     rune = JSON.parse(text);
     rune = await parseDataBaseRune(databaseRune, data, index, rune);
   }
   const newrune = new Rune(
-    rune.primaryStyleId,
-    rune.subStyleId,
-    rune.selectedPerkIds,
-    rune.name
+      rune.primaryStyleId,
+      rune.subStyleId,
+      rune.selectedPerkIds,
+      rune.name,
   );
   sendRuneToLc(newrune);
   showAllRunesInConsoleToChoose(data, assignedPosition, rune);
@@ -195,57 +188,58 @@ async function champandrune(data, lcu) {
 async function sendRuneToLc(rune) {
   try {
     await authenticate.createHttp1Request(
-      {
-        method: "DELETE",
-        url: "/lol-perks/v1/pages",
-      },
-      lcu.credentials
+        {
+          method: 'DELETE',
+          url: '/lol-perks/v1/pages',
+        },
+        lcu.credentials,
     );
   } catch (err) {
     console.log(err);
   }
   await authenticate.createHttp1Request(
-    {
-      method: "POST",
-      url: "/lol-perks/v1/pages",
-      body: rune,
-    },
-    lcu.credentials
+      {
+        method: 'POST',
+        url: '/lol-perks/v1/pages',
+        body: rune,
+      },
+      lcu.credentials,
   );
 }
 
 async function sendRunes(gameId) {
-  console.log("Game ID: " + gameId);
+  console.log('Game ID: ' + gameId);
   this.gameId = gameId;
   const gamess = await dataBase.client
-    .from("games")
-    .select("*")
-    .eq("gameid", gameId);
+      .from('games')
+      .select('*')
+      .eq('gameid', gameId);
   if (gamess.data.length === 0) {
-    await dataBase.client.from("games").insert([
-      {
-        gameid: gameId,
-      },
-    ]);
+    await dataBase.client.from('games')
+        .insert([
+          {
+            gameid: gameId,
+          },
+        ]);
   }
 }
 
 class LCU {
   constructor() {
-    this.client = "null";
-    this.credentials = "null";
-    this.session = "idle";
+    this.client = 'null';
+    this.credentials = 'null';
+    this.session = 'idle';
   }
 
   async login() {
     const credentials = await authenticate.authenticate({
       awaitConnection: true,
       pollInterval: 5000,
-      windowsShell: "powershell",
+      windowsShell: 'powershell',
     });
 
     if (credentials.password === null) {
-      console.log("LCU no");
+      console.log('LCU no');
       return;
     }
     const client = new authenticate.LeagueClient(credentials, {
@@ -257,11 +251,11 @@ class LCU {
 
   async sessionws() {
     const ws = await authenticate.createWebSocketConnection(this.credentials);
-    ws.subscribe("/lol-gameflow/v1/session", (data) => {
+    ws.subscribe('/lol-gameflow/v1/session', (data) => {
       if (data.phase !== this.session) {
         this.session = data.phase;
       }
-      if (data.phase === "InProgress") {
+      if (data.phase === 'InProgress') {
         if (this.gameId !== data.gameData.gameId) {
           sendRunes(data.gameData.gameId);
           this.gameId = data.gameData.gameId;
@@ -269,7 +263,7 @@ class LCU {
       }
     });
     const ws2 = await authenticate.createWebSocketConnection(this.credentials);
-    ws2.subscribe("/lol-champ-select/v1/current-champion", (data) => {
+    ws2.subscribe('/lol-champ-select/v1/current-champion', (data) => {
       if (data !== 0) {
         console.clear();
         if (rl !== null) {
