@@ -32,6 +32,7 @@ class Rune {
 
 class test {
   constructor(Keyone, yonamE) {
+    this.name = name;
     this.Keyone = Keyone;
     this.yonamE = yonamE;
   }
