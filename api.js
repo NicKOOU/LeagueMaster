@@ -29,7 +29,13 @@ class Rune {
     this.current = true;
   }
 }
-let ta_mere = "ta mere";
+
+class test {
+  constructor(Keyone, yonamE) {
+    this.Keyone = Keyone;
+    this.yonamE = yonamE;
+  }
+}
 
 async function showAllRunesInConsoleToChoose(
   championId,
