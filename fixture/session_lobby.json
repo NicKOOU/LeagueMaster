@@ -1,0 +1,108 @@
+{
+    "gameClient": {
+      "observerServerIp": "",
+      "observerServerPort": 0,
+      "running": false,
+      "serverIp": "",
+      "serverPort": 0,
+      "visible": false
+    },
+    "gameData": {
+      "gameId": 0,
+      "gameName": "",
+      "isCustomGame": false,
+      "password": "",
+      "playerChampionSelections": [
+      ],
+      "queue": {
+        "allowablePremadeSizes": [
+        ],
+        "areFreeChampionsAllowed": false,
+        "assetMutator": "",
+        "category": "None",
+        "championsRequiredToPlay": 0,
+        "description": "",
+        "detailedDescription": "",
+        "gameMode": "",
+        "gameTypeConfig": {
+          "advancedLearningQuests": false,
+          "allowTrades": false,
+          "banMode": "",
+          "banTimerDuration": 0,
+          "battleBoost": false,
+          "crossTeamChampionPool": false,
+          "deathMatch": false,
+          "doNotRemove": false,
+          "duplicatePick": false,
+          "exclusivePick": false,
+          "id": 0,
+          "learningQuests": false,
+          "mainPickTimerDuration": 0,
+          "maxAllowableBans": 0,
+          "name": "",
+          "onboardCoopBeginner": false,
+          "pickMode": "",
+          "postPickTimerDuration": 0,
+          "reroll": false,
+          "teamChampionPool": false
+        },
+        "id": -1,
+        "isRanked": false,
+        "isTeamBuilderManaged": false,
+        "lastToggledOffTime": 0,
+        "lastToggledOnTime": 0,
+        "mapId": 0,
+        "maximumParticipantListSize": 0,
+        "minLevel": 0,
+        "minimumParticipantListSize": 0,
+        "name": "",
+        "numPlayersPerTeam": 0,
+        "queueAvailability": "Available",
+        "queueRewards": {
+          "isChampionPointsEnabled": false,
+          "isIpEnabled": false,
+          "isXpEnabled": false,
+          "partySizeIpRewards": [
+          ]
+        },
+        "removalFromGameAllowed": false,
+        "removalFromGameDelayMinutes": 0,
+        "shortName": "",
+        "showPositionSelector": false,
+        "spectatorEnabled": false,
+        "type": ""
+      },
+      "spectatorsAllowed": false,
+      "teamOne": [
+      ],
+      "teamTwo": [
+      ]
+    },
+    "gameDodge": {
+      "dodgeIds": [
+      ],
+      "phase": "None",
+      "state": "Invalid"
+    },
+    "map": {
+      "assets": null,
+      "categorizedContentBundles": null,
+      "description": "",
+      "gameMode": "",
+      "gameModeName": "",
+      "gameModeShortName": "",
+      "gameMutator": "",
+      "id": 0,
+      "isRGM": false,
+      "mapStringId": "",
+      "name": "",
+      "perPositionDisallowedSummonerSpells": {
+      },
+      "perPositionRequiredSummonerSpells": {
+      },
+      "platformId": "",
+      "platformName": "",
+      "properties": null
+    },
+    "phase": "Lobby"
+  }

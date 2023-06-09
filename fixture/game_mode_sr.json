@@ -1,0 +1,90 @@
+{
+    "actions": [
+      [
+        {
+          "actorCellId": 0,
+          "championId": 876,
+          "completed": true,
+          "id": 1,
+          "isAllyAction": true,
+          "isInProgress": false,
+          "pickTurn": 1,
+          "type": "pick"
+        }
+      ]
+    ],
+    "allowBattleBoost": false,
+    "allowDuplicatePicks": false,
+    "allowLockedEvents": false,
+    "allowRerolling": false,
+    "allowSkinSelection": true,
+    "bans": {
+      "myTeamBans": [
+      ],
+      "numBans": 0,
+      "theirTeamBans": [
+      ]
+    },
+    "benchChampions": [
+    ],
+    "benchEnabled": false,
+    "boostableSkinCount": 1,
+    "chatDetails": {
+      "mucJwtDto": {
+        "channelClaim": "",
+        "domain": "",
+        "jwt": "",
+        "targetRegion": ""
+      },
+      "multiUserChatId": "c1~005379f06286a676c5f935c3db313288e24dbc71",
+      "multiUserChatPassword": "UZoPdLi26GH4m3DT"
+    },
+    "counter": -1,
+    "entitledFeatureState": {
+      "additionalRerolls": 0,
+      "unlockedSkinIds": [
+      ]
+    },
+    "gameId": 0,
+    "hasSimultaneousBans": false,
+    "hasSimultaneousPicks": true,
+    "isCustomGame": true,
+    "isSpectating": false,
+    "localPlayerCellId": 0,
+    "lockedEventIndex": -1,
+    "myTeam": [
+      {
+        "assignedPosition": "",
+        "cellId": 0,
+        "championId": 876,
+        "championPickIntent": 0,
+        "entitledFeatureType": "",
+        "nameVisibilityType": "",
+        "obfuscatedPuuid": "",
+        "obfuscatedSummonerId": 0,
+        "puuid": "",
+        "selectedSkinId": 876001,
+        "spell1Id": 1,
+        "spell2Id": 3,
+        "summonerId": 43091043,
+        "team": 1,
+        "wardSkinId": -1
+      }
+    ],
+    "pickOrderSwaps": [
+    ],
+    "recoveryCounter": 0,
+    "rerollsRemaining": 0,
+    "skipChampionSelect": false,
+    "theirTeam": [
+    ],
+    "timer": {
+      "adjustedTimeLeftInPhase": 9862,
+      "internalNowInEpochMs": 1686252298595,
+      "isInfinite": false,
+      "phase": "FINALIZATION",
+      "totalTimeInPhase": 12862
+    },
+    "trades": [
+    ]
+  }
