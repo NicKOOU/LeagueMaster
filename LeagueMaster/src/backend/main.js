@@ -21,7 +21,7 @@ axios.defaults.headers.common.Authorization = "Bearer YOUR_SUPABASE_API_KEY";
 
 class DB {
     constructor() {
-        this.apikey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzaHpyYm13bm15aGhibGRidnFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTQ4ODM1ODYsImV4cCI6MTk3MDQ1OTU4Nn0.ZyFI9wOqMSVP14vaBnhEa1Qa3UBFiqju7m8dSP5pb5s"
+        this.apikey = fs.readFileSync("apikey.txt", "utf8");
         this.client = createClient(
             "https://yshzrbmwnmyhhbldbvqg.supabase.co",
             this.apikey
@@ -251,20 +251,9 @@ async function createLCUWebSocket() {
 
 }
 
-async function getSummonerInfo()
+async function createFrontConnection()
 {
-    try {
-        const response = await authenticate.createHttp1Request(
-            {
-                method: "GET",
-                url: "/lol-summoner/v1/current-summoner",
-            },
-            lcu.credentials
-        );
-        return JSON.parse(response._raw.toString());
-    } catch (error) {
-        console.error(error);
-    }
+
 }
 
 wss.on("connection", (ws) => {
@@ -285,12 +274,32 @@ app.get("/api/login", async (req, res) => {
             lcu.client = client;
             lcu.credentials = credentials;
             lcu.session = "idle";
-            createLCUWebSocket();            
-            res.status(200).json({ message: "LCU login successful"});
+            createLCUWebSocket();
+            res.status(200).json({ message: "LCU login successful" });
         }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "LCU login failed" });
+    }
+});
+
+app.get("/api/refresh", async (req, res) => {
+    try {
+        const credentials = await authenticate.refreshCredentials(
+            lcu.credentials
+        );
+
+        if (credentials.password === null) {
+            res.status(500).json({ error: "LCU refresh failed" });
+        } else {
+            const client = new authenticate.LeagueClient(credentials, {});
+            lcu.client = client;
+            lcu.credentials = credentials;
+            res.status(200).json({ message: "LCU refresh successful" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "LCU refresh failed" });
     }
 });
 
@@ -304,14 +313,12 @@ app.get("/api/session", async (req, res) => {
     }
 });
 
-app.get("/api/current-summoner", async (req, res) => {
+app.get("/api/rune", async (req, res) => {
     try {
-        const response = await getSummonerInfo();
-        res.status(200).json(response);
-        console.log(response);
+        const response = await lcu.client.get("/lol-perks/v1/currentpage");
+        res.status(200).json(response.data);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to get summoner data" });
+        res.status(500).json({ error: "Failed to get rune data" });
     }
 });
-
