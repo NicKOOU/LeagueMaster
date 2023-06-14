@@ -283,42 +283,20 @@ app.get("/api/login", async (req, res) => {
     }
 });
 
-app.get("/api/refresh", async (req, res) => {
+app.get("/api/current-summoner", async (req, res) => {
     try {
-        const credentials = await authenticate.refreshCredentials(
+        const response = await authenticate.createHttp1Request(
+            {
+                method: "GET",
+                url: "/lol-summoner/v1/current-summoner",
+            },
             lcu.credentials
         );
-
-        if (credentials.password === null) {
-            res.status(500).json({ error: "LCU refresh failed" });
-        } else {
-            const client = new authenticate.LeagueClient(credentials, {});
-            lcu.client = client;
-            lcu.credentials = credentials;
-            res.status(200).json({ message: "LCU refresh successful" });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "LCU refresh failed" });
-    }
-});
-
-app.get("/api/session", async (req, res) => {
-    try {
-        const response = await lcu.client.get("/lol-champ-select/v1/session");
+        response.data = JSON.parse(response._raw.toString());
+        response.data.rerollPoints.numberOfRolls = 2;
         res.status(200).json(response.data);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to get session data" });
-    }
-});
-
-app.get("/api/rune", async (req, res) => {
-    try {
-        const response = await lcu.client.get("/lol-perks/v1/currentpage");
-        res.status(200).json(response.data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Failed to get rune data" });
+        res.status(500).json({ error: "Failed to get current summoner data" });
     }
 });

@@ -7,7 +7,6 @@
     </div>
     <div v-else>
       <h2>Champion Select</h2>
-      <p>Champion: {{ runes.championName }}</p>
       <p>Primary Rune: {{ runes.primaryStyleId }}</p>
       <p>Secondary Rune: {{ runes.subStyleId }}</p>
       <p>Perks: {{ runes.selectedPerkIds }}</p>
@@ -50,4 +49,3 @@
     },
   };
   </script>
-  

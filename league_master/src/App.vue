@@ -1,10 +1,9 @@
 <template>
   <div class="app">
-    <HeaderSection />
-    <div>
+    <HeaderSection v-if="!isLoading" />
+    <div class="content">
       <router-view></router-view>
     </div>
-    <FooterSection />
   </div>
 </template>
 
@@ -17,8 +16,19 @@ body {
 
 .app {
   background-color: #141336;
-  position: relative; /* Add position relative to the app container */
-  min-height: 100vh; /* Set a minimum height to fill the viewport */
+  position: relative;
+  min-height: 100vh;
+}
+
+.content {
+  overflow-y: auto;
+  /* Enable vertical scrolling for the content */
+  max-height: calc(100vh - 120px);
+  /* Adjust the max-height to account for header and footer heights */
+}
+
+.content::-webkit-scrollbar {
+  display: none;
 }
 
 .loading-overlay {
@@ -30,19 +40,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* Ensure the overlay is above other elements */
+  z-index: 9999;
 }
-
 </style>
 
 <script>
-import FooterSection from "@/components/Footer.vue";
 import HeaderSection from "@/components/Header.vue";
 
 export default {
   name: 'App',
   components: {
-    FooterSection,
     HeaderSection
   },
   data() {
@@ -60,9 +67,12 @@ export default {
       fetch('http://localhost:3000/api/login')
         .then(response => response.json())
         .then(data => {
+          console.log('Response:', data);
           if (data.message === 'LCU login successful' || data.message === 'LCU already logged in') {
-            this.isLoading = false;
-            router.push('/session');
+            setTimeout(() => {
+              this.isLoading = false;
+              router.push('/session');
+            }, 2000); // Delay in milliseconds (2 seconds)
           } else {
             console.log('Invalid response:', data);
           }

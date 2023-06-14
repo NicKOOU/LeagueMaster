@@ -22,5 +22,6 @@ export default {
   height: 100vh;
   font-family: Arial, sans-serif;
   background-color: #141336;
+  overflow: hidden;
 }
 </style>
