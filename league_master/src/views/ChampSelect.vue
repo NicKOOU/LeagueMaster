@@ -7,9 +7,7 @@
     </div>
     <div v-else>
       <h2>Champion Select</h2>
-      <p>Primary Rune: {{ runes.primaryStyleId }}</p>
-      <p>Secondary Rune: {{ runes.subStyleId }}</p>
-      <p>Perks: {{ runes.selectedPerkIds }}</p>
+      <runes></runes>
     </div>
   </div>
 </template>
@@ -23,29 +21,32 @@
   height: 100vh;
   color: white;
 }
-
 </style>
 
   
-  <script>
-  export default {
-    data() {
-      return {
-        runes: {},
-      };
-    },
-    created() {
-      this.$ws.addEventListener('message', (event) => {
-        console.log('Received message:', event.data);
-        const message = JSON.parse(event.data);
-        if (message.primaryStyleId && message.subStyleId && message.selectedPerkIds) {
-          this.runes = message;
-        }
-        if(message.Session === "None")
-        {
-          this.$router.push('/session');
-        }
-      });
-    },
-  };
-  </script>
+<script>
+import runes from '@/components/runes.vue';
+
+export default {
+  data() {
+    return {
+      runes: {},
+    };
+  },
+  components: {
+    runes,
+  },
+  created() {
+    this.$ws.addEventListener('message', (event) => {
+      console.log('Received message:', event.data);
+      const message = JSON.parse(event.data);
+      if (message.primaryStyleId && message.subStyleId && message.selectedPerkIds) {
+        this.runes = message;
+      }
+      if (message.Session === "None") {
+        this.$router.push('/session');
+      }
+    });
+  },
+};
+</script>

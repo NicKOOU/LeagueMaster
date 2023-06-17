@@ -293,7 +293,6 @@ app.get("/api/current-summoner", async (req, res) => {
             lcu.credentials
         );
         response.data = JSON.parse(response._raw.toString());
-        response.data.rerollPoints.numberOfRolls = 2;
         res.status(200).json(response.data);
     } catch (error) {
         console.error(error);
